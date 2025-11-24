@@ -1,7 +1,7 @@
 
 import json
 from pydantic import ValidationError
-from backend.agent.schema import FileSchema
+from backend.schema.schema import FileSchema
 
 class FileValidator:
     """

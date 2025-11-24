@@ -3,7 +3,7 @@ import re
 from typing import List, Dict, Any
 from google.genai import types
 from backend.agent.registry import current_state
-from backend.agent.llm_client import LLMClient
+from backend.utils.llm_client import LLMClient
 
 
 class FeatureExtractionAgent:
@@ -70,15 +70,7 @@ Output FORMAT RULES (IMPORTANT):
         # Save into global state
         current_state.project_metadata.feature_files = file_paths
 
-        current_state.project_metadata.base_files = [
-        "src/main.ts",
-        # "src/app/app.component.ts",
-        # "src/app/app.routes.ts",
-        # "src/app/app.config.ts",
-        # "package.json",
-        # "angular.json",
-        # "tsconfig.json"
-    ]
+        
         return file_paths
 
     # ---------- Internal Helpers ----------

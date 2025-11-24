@@ -1,7 +1,7 @@
 
 from backend.agent.registry import current_state
 from backend.agent.generation_agent import GenerationAgent
-from backend.agent.file_validator import FileValidator
+from backend.utils.file_validator import FileValidator
 
 # GIVEN:
 current_state.raw_user_prompt = "create a login page"

@@ -1,5 +1,5 @@
 from pydantic import ValidationError
-from backend.agent.state import AgentState, ErrorDetail
+from backend.workflow.state import AgentState, ErrorDetail
 
 
 def test_state_schema():

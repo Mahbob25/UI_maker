@@ -52,3 +52,8 @@ class AgentState(BaseModel):
     #  Security Additional Memory 
     security_flags: List[str] = Field(default_factory=list)
 
+    system_context: str | None = None # THis will store the context.
+
+    symbols: list[dict] = Field(default_factory=list) # for the extracted symboles from files. eg==> (class, interface, enum)
+
+

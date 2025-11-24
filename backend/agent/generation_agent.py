@@ -1,6 +1,6 @@
-from backend.agent.system_context_builder import SystemContextBuilder
+from backend.utils.system_context_builder import SystemContextBuilder
 from backend.agent.registry import current_state
-from backend.agent.llm_client import LLMClient
+from backend.utils.llm_client import LLMClient
 from google.genai import types
 import json
 
@@ -26,7 +26,7 @@ class GenerationAgent:
         if not file_path or not file_path.strip():
             raise ValueError("CodeGenerationAgent: target_path cannot be empty.")
         
-        system_context = self.context_builder.build()
+        
         user_prompt = f"""
 Generate ONLY the TypeScript code for this single file.
 
@@ -55,7 +55,7 @@ Rules:
         response = self.client.models.generate_content(
             model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
-                system_instruction=system_context,
+                system_instruction=current_state.system_context,
                 response_mime_type="application/json",
             ),
             contents=user_prompt,

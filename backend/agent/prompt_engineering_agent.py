@@ -1,4 +1,4 @@
-from backend.agent.llm_client import LLMClient
+from backend.utils.llm_client import LLMClient
 from google.genai import types
 from .registry import current_state
 

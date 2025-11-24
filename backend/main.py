@@ -4,9 +4,9 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 from backend.agent.registry import current_state 
 from backend.agent.prompt_engineering_agent import PromptEngineeringAgent
-from backend.agent.system_context_builder import SystemContextBuilder
+from backend.utils.system_context_builder import SystemContextBuilder
 from backend.agent.feature_extraction_agent import FeatureExtractionAgent
-from backend.agent.loop_workflow import LoopWorkflow
+from backend.workflow.loop_workflow import LoopWorkflow
 
 import os
 app = FastAPI()
@@ -23,8 +23,9 @@ async def root(request: Request):
 @app.post("/generate")
 async def generate(request: Request, prompt: str = Form(...)):
     current_state.raw_user_prompt = str(prompt)
+    print("="*50)
     print(f"successufly received Stored Prompt: {current_state.raw_user_prompt}")
-    print("\n" + "="*50)
+    print("="*50)
 
     # # Generating Workflow
     # PromptEngineeringAgent().run()
