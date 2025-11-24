@@ -6,6 +6,7 @@ from backend.utils.system_context_builder import SystemContextBuilder
 from backend.agent.feature_extraction_agent import FeatureExtractionAgent
 from backend.utils.symbol_extractor import SymbolExtractor
 from backend.utils.file_writer import FileWriter
+from backend.utils.folder_zipper import zip_folder
 from pathlib import Path
 from uuid import uuid4
 
@@ -28,9 +29,7 @@ class LoopWorkflow:
         print(f"successufly Extracted features form user spec.....")
         print("="*50)
         
-        current_state.project_metadata.base_files = [
-        "src/app/app.routes.ts",
-    ]
+        
 
         file_queue = self._collect_files()  
         print("\n Files to generate:\n", file_queue)
@@ -47,15 +46,27 @@ class LoopWorkflow:
             print("(-_-)", path)
         print("="*50)
 
-        
+        print("==> writing files.....")
         writer = FileWriter("generated_output")  # your output directory
         writer.write_files(current_state.files_json)
 
+        print("="*50)
+        print("zipping folder.....")
+        zip_folder("D:\\Agentic_AI\\agent_coder\\generated_output", "D:\\Agentic_AI\\agent_coder") #zip and delete source
+        print("your zip is ready.")
+
     def _collect_files(self):
+        
+        current_state.project_metadata.base_files = [ # not good for production but it is oksy now
+        "src/app/app.routes.ts",
+        ]
+
         files = set(
             current_state.project_metadata.base_files +
             current_state.project_metadata.feature_files
         )
+
+        files = sorted(files, key=lambda f: f.endswith("app.routes.ts")) # i want to make sure routes gets generated last.
         return list(files)
 
 

@@ -7,6 +7,8 @@ from backend.agent.prompt_engineering_agent import PromptEngineeringAgent
 from backend.utils.system_context_builder import SystemContextBuilder
 from backend.agent.feature_extraction_agent import FeatureExtractionAgent
 from backend.workflow.loop_workflow import LoopWorkflow
+from pathlib import Path
+from fastapi.responses import FileResponse
 
 import os
 app = FastAPI()
@@ -48,9 +50,26 @@ async def generate(request: Request, prompt: str = Form(...)):
     print("\n" + "="*50)
 
 
-    return {
-    "files_generated": list(current_state.files_json.items()),
-    "errors": current_state.errors,
-    }
+    return templates.TemplateResponse(
+        request=request, name="download.html"
+    )
 
+@app.get("/download")
+def download_project():
+    project_dir = Path("D:/Agentic_AI/agent_coder/generated_output.zip")
     
+    response = FileResponse(
+        path=project_dir,
+        media_type="application/zip",
+        filename="generated_project.zip"
+    )
+
+    @response.call_on_close
+    def cleanup():
+        try:
+            os.remove(project_dir)  # delete zip file
+            print("✔ Zip deleted after download")
+        except:
+            print("⚠ Failed to delete zip")
+
+    return response

@@ -56,4 +56,3 @@ class AgentState(BaseModel):
 
     symbols: list[dict] = Field(default_factory=list) # for the extracted symboles from files. eg==> (class, interface, enum)
 
-
