@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from pydantic import BaseModel, Field
 
 
@@ -15,7 +15,8 @@ class ProjectMetadata(BaseModel):
     name: Optional[str] = None
     angular_version: str = "17"
     requires_routing: bool = True
-    
+    feature_plan: Optional[Dict[str, Any]] = None
+
 
     # NEW: structure info
     base_files: List[str] = Field(
