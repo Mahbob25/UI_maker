@@ -1,5 +1,5 @@
 from backend.agent.registry import current_state
-from backend.agent.feature_extraction_agent import FeatureExtractionAgent
+from backend.agent.feature_planning_agent import FeaturePlanningAgent
 
 if __name__ == "__main__":
     # assume spec_clean already set, or set it manually here:
@@ -9,7 +9,6 @@ if __name__ == "__main__":
     """ 
     
 
-    files = FeatureExtractionAgent().run()
-    print("Extracted feature files:", files)
-    print("Extracted feature files:", current_state.project_metadata.base_files)
+    files = FeaturePlanningAgent().run()
+    print("Extracted feature files:", current_state.feature_plan)
 

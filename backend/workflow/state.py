@@ -15,7 +15,7 @@ class ProjectMetadata(BaseModel):
     name: Optional[str] = None
     angular_version: str = "17"
     requires_routing: bool = True
-    feature_plan: Optional[Dict[str, Any]] = None
+    
 
 
     # NEW: structure info
@@ -57,3 +57,4 @@ class AgentState(BaseModel):
 
     symbols: list[dict] = Field(default_factory=list) # for the extracted symboles from files. eg==> (class, interface, enum)
 
+    feature_plan: Optional[Dict[str, Any]] = None

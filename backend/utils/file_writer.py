@@ -24,8 +24,9 @@ class FileWriter:
 
         print(f"\n==> Writing project files into: {self.output_dir}\n")
 
-        for rel_path, file_data in files_json.items():
+        for path, file_data in files_json.items():
             try:
+                rel_path = "src/app/" + path
                 self._write_single_file(rel_path, file_data.get("content", ""))
             except Exception as e:
                 print(f"X ERROR writing {rel_path}: {e}")

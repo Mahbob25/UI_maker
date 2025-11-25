@@ -4,6 +4,7 @@ from backend.agent.registry import current_state
 from backend.agent.prompt_engineering_agent import PromptEngineeringAgent
 from backend.utils.system_context_builder import SystemContextBuilder
 from backend.agent.feature_extraction_agent import FeatureExtractionAgent
+from backend.agent.feature_planning_agent import FeaturePlanningAgent
 from backend.utils.symbol_extractor import SymbolExtractor
 from backend.utils.file_writer import FileWriter
 from backend.utils.folder_zipper import zip_folder
@@ -17,34 +18,31 @@ class LoopWorkflow:
 
     def run(self):
         
-        # Generating Workflow
+        # 1) Prompt engineering
         PromptEngineeringAgent().run()
         print(f"successufly Engineered the Prompt.....")
         print("="*50)
 
-        current_state.system_context = SystemContextBuilder().build()
-        print(f"successufly built the context and output Rules.....")
+        # 2) Feature planning 
+        FeaturePlanningAgent().run()
+        print(f"successufly Planned The project features.....")
         print("="*50)
 
-        FeatureExtractionAgent().run()
-        print(f"successufly Extracted features form user spec.....")
-        print("="*50)
-        
-        
-
+        # 3) Collect planned file targets
         file_queue = self._collect_files()  
         print("\n Files to generate:\n", file_queue)
         print("="*50)
 
+        # 4) Generate each file based on planning
         for file_path in file_queue:
             self._handle_file(file_path)
             
             
-               
             
-
+        # 5) Output summary and write files
         print("\n All files generated successfully!")
         print("\n Final valid JSON files:")
+
         for path in current_state.files_json.keys():
             print("(-_-)", path)
         print("="*50)
@@ -59,17 +57,17 @@ class LoopWorkflow:
         print("your zip is ready.")
 
     def _collect_files(self):
-        
-        current_state.project_metadata.base_files = [ # not good for production but it is oksy now
-        "src/app/app.routes.ts",
-        ]
 
-        files = set(
-            current_state.project_metadata.base_files +
-            current_state.project_metadata.feature_files
-        )
+        # New build: planned files + routing file
+        files = {
+            feature["file_name"]
+            for feature in current_state.feature_plan["features"]
+        }
+        # include routing
+        files.add("src/app/app.routes.ts")
 
-        files = sorted(files, key=lambda f: f.endswith("app.routes.ts")) # i want to make sure routes gets generated last.
+        # ensure routing is last
+        files = sorted(files, key=lambda f: f.endswith("app.routes.ts"))
         return list(files)
 
 
