@@ -9,6 +9,7 @@ from backend.agent.feature_extraction_agent import FeatureExtractionAgent
 from backend.workflow.loop_workflow import LoopWorkflow
 from pathlib import Path
 from fastapi.responses import FileResponse
+from fastapi.background import BackgroundTasks
 
 import os
 app = FastAPI()
@@ -55,21 +56,15 @@ async def generate(request: Request, prompt: str = Form(...)):
     )
 
 @app.get("/download")
-def download_project():
+def download_project(background_tasks: BackgroundTasks):
     project_dir = Path("D:/Agentic_AI/agent_coder/generated_output.zip")
     
+    background_tasks.add_task(os.remove, str(project_dir))
+
     response = FileResponse(
         path=project_dir,
         media_type="application/zip",
         filename="generated_project.zip"
     )
-
-    @response.call_on_close
-    def cleanup():
-        try:
-            os.remove(project_dir)  # delete zip file
-            print("✔ Zip deleted after download")
-        except:
-            print("⚠ Failed to delete zip")
 
     return response

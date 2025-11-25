@@ -10,7 +10,7 @@ def zip_folder(src, dest):
     dest_path = Path(dest)
 
     zip_name = dest_path / src_path.name  # e.g. D:\...\agent_coder\generated_output.zip
-
+    
     shutil.make_archive(str(zip_name), 'zip', root_dir=str(src_path))
 
     try:

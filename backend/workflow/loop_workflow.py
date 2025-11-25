@@ -7,6 +7,7 @@ from backend.agent.feature_extraction_agent import FeatureExtractionAgent
 from backend.utils.symbol_extractor import SymbolExtractor
 from backend.utils.file_writer import FileWriter
 from backend.utils.folder_zipper import zip_folder
+from backend.settings import BASE_DIR, GENERATED_DIR
 from pathlib import Path
 from uuid import uuid4
 
@@ -37,6 +38,7 @@ class LoopWorkflow:
 
         for file_path in file_queue:
             self._handle_file(file_path) 
+            
                
             
 
@@ -52,7 +54,7 @@ class LoopWorkflow:
 
         print("="*50)
         print("zipping folder.....")
-        zip_folder("D:\\Agentic_AI\\agent_coder\\generated_output", "D:\\Agentic_AI\\agent_coder") #zip and delete source
+        zip_folder(GENERATED_DIR, BASE_DIR) #zip and delete source
         print("your zip is ready.")
 
     def _collect_files(self):
