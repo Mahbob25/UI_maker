@@ -38,7 +38,7 @@ class LoopWorkflow:
 
         for file_path in file_queue:
             self._handle_file(file_path)
-            break 
+            
             
                
             
