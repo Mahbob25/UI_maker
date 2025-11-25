@@ -5,7 +5,6 @@ from pydantic import BaseModel, Field
 from backend.agent.registry import current_state 
 from backend.agent.prompt_engineering_agent import PromptEngineeringAgent
 from backend.utils.system_context_builder import SystemContextBuilder
-from backend.agent.feature_extraction_agent import FeatureExtractionAgent
 from backend.workflow.loop_workflow import LoopWorkflow
 from pathlib import Path
 from fastapi.responses import FileResponse

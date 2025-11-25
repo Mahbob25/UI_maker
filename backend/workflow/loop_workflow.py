@@ -3,8 +3,9 @@ from backend.utils.file_validator import FileValidator
 from backend.agent.registry import current_state
 from backend.agent.prompt_engineering_agent import PromptEngineeringAgent
 from backend.utils.system_context_builder import SystemContextBuilder
-from backend.agent.feature_extraction_agent import FeatureExtractionAgent
 from backend.agent.feature_planning_agent import FeaturePlanningAgent
+from backend.utils.json_fix_prompt_builder import JSONFixPromptBuilder
+from backend.agent.fix_agent import FixAgent
 from backend.utils.symbol_extractor import SymbolExtractor
 from backend.utils.file_writer import FileWriter
 from backend.utils.folder_zipper import zip_folder
@@ -78,6 +79,9 @@ class LoopWorkflow:
 
         if not FileValidator.is_valid(raw):
             print(f"(X) INVALID: {file_path}")
+            fixer = FixAgent()
+            raw = fixer.run(file_path, raw, JSONFixPromptBuilder)
+
             current_state.errors.append({
                 "file": file_path,
                 "type": "VALIDATION",
