@@ -37,7 +37,8 @@ class LoopWorkflow:
         print("="*50)
 
         for file_path in file_queue:
-            self._handle_file(file_path) 
+            self._handle_file(file_path)
+            break 
             
                
             

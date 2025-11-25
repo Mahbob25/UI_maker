@@ -10,6 +10,7 @@ from backend.workflow.loop_workflow import LoopWorkflow
 from pathlib import Path
 from fastapi.responses import FileResponse
 from fastapi.background import BackgroundTasks
+from .settings import GENERATED_DIR
 
 import os
 app = FastAPI()
@@ -57,12 +58,13 @@ async def generate(request: Request, prompt: str = Form(...)):
 
 @app.get("/download")
 def download_project(background_tasks: BackgroundTasks):
-    project_dir = Path("D:/Agentic_AI/agent_coder/generated_output.zip")
     
-    background_tasks.add_task(os.remove, str(project_dir))
+    ZIP_PATH = GENERATED_DIR.with_suffix(".zip")
+    #delet automatically after downloading.
+    background_tasks.add_task(os.remove, str(ZIP_PATH))
 
     response = FileResponse(
-        path=project_dir,
+        path=ZIP_PATH,
         media_type="application/zip",
         filename="generated_project.zip"
     )
