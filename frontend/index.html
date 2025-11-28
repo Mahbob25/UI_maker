@@ -1,75 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Form Submission</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        input[type="text], 
-        input[type="email"], 
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9f7ef;
-            border-radius: 5px;
-            display: none;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgentCoder • Generate Your App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card: rgba(255, 255, 255, 0.15);
+      --card-border: rgba(255, 255, 255, 0.2);
+      --text: #ffffff;
+      --text-light: rgba(255, 255, 255, 0.8);
+      --accent: #a78bfa;
+      --accent-hover: #8b5cf6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background-attachment: fixed;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+      background: var(--card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+      padding: 48px 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ffffff, #e0d4ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    p.subtitle {
+      font-size: 1.2rem;
+      opacity: 0.9;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    form {
+      margin-top: 32px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 18px 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      color: white;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    input[type="text"]::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    input[type="text"]:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.3);
+    }
+
+    button {
+      margin-top: 24px;
+      width: 100%;
+      padding: 18px;
+      background: var(--accent);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 8px 25px rgba(167, 139, 250, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: var(--accent-hover);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
+    }
+
+    footer {
+      margin-top: 60px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 2.4rem; }
+      .container { padding: 40px 24px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>UI Maker</h1>
-        
-        <form action="{{ url_for('generate') }}" method="POST">
-            <label for="name">prompt:</label>
-            <input type="text" id="prompt" name="prompt" placeholder="eg. create a login page" required>
-            <button type="submit">Submit</button>
-        </form>
-    </div>
+  <div class="container">
+    <h1>AgentCoder</h1>
+    <p class="subtitle">Tell me what app you want.<br>I’ll build the full Angular project in seconds.</p>
 
-  
+    <form action="{{ url_for('generate') }}" method="POST">
+      <label for="prompt">Your idea:</label>
+      <input 
+        type="text" 
+        id="prompt" 
+        name="prompt" 
+        placeholder="e.g. Create a modern login page with password recovery and dark mode"
+        required 
+      />
+      <button type="submit">Generate My App</button>
+    </form>
+
+    <footer>
+      Powered by AgentCoder • Full-stack Angular apps in seconds
+    </footer>
+  </div>
 </body>
 </html>

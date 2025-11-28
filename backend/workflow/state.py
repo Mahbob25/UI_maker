@@ -58,3 +58,9 @@ class AgentState(BaseModel):
     symbols: list[dict] = Field(default_factory=list) # for the extracted symboles from files. eg==> (class, interface, enum)
 
     feature_plan: Optional[Dict[str, Any]] = None
+
+    # temp actions
+    modify_prompt: str | None = None 
+    search_results: str | None = None 
+
+

@@ -1,76 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Form Submission</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background-color: #f4f4f4;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgentCoder • Your Project is Ready</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --card: rgba(255, 255, 255, 0.15);
+      --card-border: rgba(255, 255, 255, 0.2);
+      --text: #ffffff;
+      --text-light: rgba(255, 255, 255, 0.8);
+      --accent: #a78bfa;
+      --accent-hover: #8b5cf6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background-attachment: fixed;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+      background: var(--card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+      padding: 48px 40px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #ffffff, #e0d4ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .steps {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 20px;
+      margin: 32px 0;
+      text-align: left;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+       
+    }
+
+    .steps code {
+        display: inline-block;                /* This is the key! */
+        background: rgba(0, 0, 0, 0.4);
+        color: #e2e8f0;
+        padding: 6px 12px;
+        border-radius: 10px;
+        font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+        font-size: 0.95em;
+        font-weight: 500;
+        margin: 6px 4px;                      /* Vertical & horizontal spacing */
+        line-height: 1.4;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
-        .container {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        
-         
-        textarea {
-            width: 100%;
-            padding: 10px;
-            margin-top: 5px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-        button {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e9f7ef;
-            border-radius: 5px;
-            display: none;
-        }
-    </style>
+
+    .download-btn {
+      display: inline-block;
+      margin: 32px 0;
+      padding: 16px 40px;
+      background: var(--accent);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 600;
+      border-radius: 16px;
+      text-decoration: none;
+      box-shadow: 0 8px 25px rgba(167, 139, 250, 0.4);
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+    }
+
+    .download-btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(139, 92, 246, 0.5);
+    }
+
+    .change-request {
+      margin-top: 40px;
+    }
+
+    .change-request label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      color: white;
+      font-size: 1rem;
+      resize: vertical;
+      min-height: 120px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    textarea::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.3);
+    }
+
+    .submit-btn {
+      margin-top: 16px;
+      padding: 14px 32px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      font-weight: 600;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .submit-btn:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    footer {
+      margin-top: 48px;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 2.3rem; }
+      .container { padding: 32px 24px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Download Your UI</h1>
-        <p>please unzip the folder and run </p>
-        <p>npm install </p>
-        <p>ng serve </p>
-        <a href="http://localhost:8000/download" download>
-        <button>Download Folder</button>
-        </a>
-       
+  <div class="container">
+    <h1>Your App is Ready!</h1>
+    <p class="subtitle">Your full Angular project has been generated successfully.</p>
+
+    <div class="steps">
+      <p><strong>Next steps:</strong></p>
+      <p>1. Unzip the downloaded folder</p>
+      <p>2. Open terminal and run:</p>
+      <p><code>npm install</code></p>
+      <p><code>ng serve</code></p>
+      <p>Then open <code>http://localhost:4200</code></p>
     </div>
 
-  
+    <a href="http://localhost:8000/download" download>
+      <button class="download-btn">Download Project ZIP</button>
+    </a>
+
+    <div class="change-request">
+      <form action="/modify" method="POST" enctype="multipart/form-data">
+        <label for="request">Want to change something?</label>
+        <textarea 
+          name="modify_prompt" 
+          id="request" 
+          placeholder="e.g. Change the login button to purple, add dark mode, make the navbar sticky, etc."
+          required
+        ></textarea>
+        <button type="submit" class="submit-btn">Apply Changes</button>
+      </form>
+    </div>
+
+    <footer>
+      Powered by AgentCoder • Built with love for developers
+    </footer>
+  </div>
 </body>
 </html>
