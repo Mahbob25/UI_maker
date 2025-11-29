@@ -81,16 +81,19 @@ class UserFeedbackWorkflow:
 
         print("\n=== Step 4: Writing Updated Files ===")
         writer = FileWriter("generated_output")
-        normalized_files = _normalize_updated_files_for_writer(current_state.updated_files, writer.output_dir)
-        writer.write_files(normalized_files)
+        normalized_for_writer  = _normalize_updated_files_for_writer(current_state.updated_files, writer.output_dir)
+        writer.write_files(normalized_for_writer )
 
         
-        
+        normalized_for_indexer = {
+            os.path.join(writer.output_dir, rel_path).replace("\\", "/"): data
+            for rel_path, data in normalized_for_writer.items()
+        }
 
 
 
         print("\n===  Step 5: Re-indexing Updated Files ===")
-        self.indexer.update_file_chunks(normalized_files)
+        self.indexer.update_file_chunks(normalized_for_indexer)
 
         print("\n===  Step 6: Zipping the Folder ===")
         zip_folder(GENERATED_DIR, BASE_DIR) #zip and delete source

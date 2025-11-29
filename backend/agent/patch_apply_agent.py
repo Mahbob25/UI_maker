@@ -12,7 +12,7 @@ from backend.agent.registry import current_state
 from backend.utils.llm_client import LLMClient
 from google.genai import types
 import json
-
+import json_repair
 class PatchApplyAgent:
     def __init__(self):
         self.client = LLMClient.get()
@@ -111,10 +111,13 @@ END OF RULES.
         
         try:
             result = json.loads(response.text)
-           
-            
         except Exception:
-            raise ValueError("PatchApplyAgent returned invalid JSON")
+            result = json_repair.loads(response.text)
+            try:
+                result = json.loads(response.text)
+            except Exception:
+                raise ValueError("PatchApplyAgent returned invalid JSON")
+            
         
         # Normalize to dict form
         updated_list = result.get("updated_files", [])
