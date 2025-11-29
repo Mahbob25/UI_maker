@@ -39,7 +39,7 @@ class GenerationAgent:
             raise ValueError("GenerationAgent: file_path cannot be empty.")
 
         # Build and store the system context (includes feature_plan JSON)
-        system_context = self.context_builder.build()
+        system_context = self.context_builder.build() # i think i am building it twice so i will comeback later to check it.
         current_state.system_context = system_context
 
         # Detect if we are generating the routing file or a page component
@@ -98,7 +98,7 @@ Component-specific rules:
 
         user_prompt = base_prompt + role_specific
 
-        # ---------- Call LLM ----------
+        #  Call LLM 
         response = self.client.models.generate_content(
             model="gemini-2.5-flash",
             config=types.GenerateContentConfig(

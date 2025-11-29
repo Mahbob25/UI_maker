@@ -1,7 +1,7 @@
 from backend.vectorstore.code_indexer import CodeIndexer
 from backend.agent.registry import current_state
 
-class UserFeedback:
+class CodeSearch:
     @staticmethod
     def run(modify_prompt: str):
         indexer = CodeIndexer()

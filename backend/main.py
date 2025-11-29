@@ -1,14 +1,16 @@
 from fastapi import FastAPI, Request, Form
+from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from backend.agent.registry import current_state 
 from backend.agent.prompt_engineering_agent import PromptEngineeringAgent
 from backend.utils.system_context_builder import SystemContextBuilder
-from backend.utils.user_feedback import UserFeedback
+from backend.utils.code_search import CodeSearch
 from backend.workflow.loop_workflow import LoopWorkflow
 from pathlib import Path
 from fastapi.responses import FileResponse
 from fastapi.background import BackgroundTasks
+from backend.workflow.user_feedback_workflow import UserFeedbackWorkflow
 from .settings import GENERATED_DIR
 
 import os
@@ -72,5 +74,6 @@ def download_project(background_tasks: BackgroundTasks):
 @app.post("/modify")
 async def modify_project(modify_prompt: str = Form(...)):
     current_state.modify_prompt = modify_prompt
-    results = UserFeedback.run(modify_prompt)   # pass the prompt directly
-    return {"search_results": results}
+    UserFeedbackWorkflow().run()
+    return RedirectResponse(url="/download", status_code=303)
+    
