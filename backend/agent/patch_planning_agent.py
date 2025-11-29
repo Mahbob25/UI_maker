@@ -1,9 +1,9 @@
 from backend.agent.registry import current_state
 from backend.utils.llm_client import LLMClient
 from google.genai import types
+import json
 
-
-class PachPlanningAgent():
+class PatchPlanningAgent():
     def __init__(self):
         self.client = LLMClient().get()
 
@@ -66,6 +66,20 @@ Rules:
   { "changes": [], "notes": "No matching code found for this request." }
 - Keep instructions extremely specific, but still natural language.
 - Focus on identifying location and type of edit—not writing it.
+If the excerpt does not match exactly due to whitespace or formatting differences,
+you MUST still find the closest matching line and apply the modification.
+DO NOT return an unchanged file.
+If your updated file is IDENTICAL to the original, this is an error.
+You MUST apply the requested change even if matching the snippet is imperfect.
+
+
+When extracting the CURRENT_CODE_EXCERPT:
+- Include ONLY the exact line(s) that must be edited.
+- NEVER include surrounding or adjacent lines.
+- Do NOT include descriptions, comments, or parent tags unless the instruction explicitly requires modifying them.
+- The excerpt must be the minimal text needed for the patch agent to locate the right code.
+- If the item to be changed is within an HTML tag, include ONLY that tag.
+
 
 Goal:
 Your output will be consumed by a Code Generation Patch Agent that will apply the actual changes. Your job is only planning.
@@ -82,8 +96,17 @@ End of system instruction.
             contents=prompt,
         )
 
+       
+        try:
+            response = json.loads(response.text)
+            current_state.patch_plan = response
+            print("plan:=====>\n",response)
+            return response
+        except Exception:
+            raise ValueError("PatchApplyAgent returned invalid JSON")
         
-        return response.text
+        
+       
     
 
 

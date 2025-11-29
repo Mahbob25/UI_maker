@@ -60,7 +60,13 @@ class AgentState(BaseModel):
     feature_plan: Optional[Dict[str, Any]] = None
 
     # temp actions
-    # modify_prompt: str | None = None 
+    modify_prompt:  str | None = None 
+
     search_results: str | None = None 
+
+    patch_plan: Optional[Dict[str, Any]] = None
+
+    updated_files: Dict[str, str] = Field(default_factory=dict) 
+
 
 

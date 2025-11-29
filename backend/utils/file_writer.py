@@ -36,30 +36,50 @@ class FileWriter:
     
 
     def _write_single_file(self, rel_path: str, content: str):
-        
-        # Writes a single file to disk, skipping empty ones.
-        
-        content = (content or "").strip() # clean  file
-
+        # normalize input
+        content = (content or "").strip()
         if not content:
             print(f"!! SKIPPED (empty file): {rel_path}")
             return
-        
-        if not rel_path.startswith("src/app/"):
-            rel_path = "src/app/" + rel_path
 
+        # If user passed an absolute path, convert to a path relative to output_dir if possible
+        p = Path(rel_path)
+        if p.is_absolute():
+            try:
+                rel = os.path.relpath(str(p), str(self.output_dir))
+            except Exception:
+                # fallback to basename
+                rel = p.name
+        else:
+            # ensure consistent forward slashes
+            rel = str(rel_path).replace(os.path.sep, '/')
 
-        full_path = os.path.join(self.output_dir, rel_path)
+        # If rel already contains output_dir prefix like "generated_output/src/app/..."
+        # strip any leading output_dir segments
+        if rel.startswith(str(self.output_dir.name) + "/"):
+            # take part after the output_dir name
+            rel = rel.split(str(self.output_dir.name) + "/", 1)[1]
+
+        # Ensure it starts with src/app/ (your app layout)
+        rel = rel.lstrip("/")
+
+        # Remove accidental duplicated prefixes like "src/app/src/app/"
+        while rel.startswith("src/app/src/app/"):
+            rel = rel.replace("src/app/src/app/", "src/app/", 1)
+
+        # If it doesn't start with src/app/, FORCE it
+        if not rel.startswith("src/app/"):
+            rel = "src/app/" + rel
+
+        full_path = os.path.join(str(self.output_dir), rel)
         folder = os.path.dirname(full_path)
 
-        # Create directories if not exist
         os.makedirs(folder, exist_ok=True)
-
-        # Overwrite file
         with open(full_path, "w", encoding="utf-8") as f:
             f.write(content)
 
-        print(f"(: WROTE: {rel_path}")
+        print(f"(: WROTE: {rel}")
+
 
 
     def _copy_base_template(self):

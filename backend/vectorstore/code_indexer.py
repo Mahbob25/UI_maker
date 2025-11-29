@@ -89,6 +89,8 @@ class CodeIndexer:
             start_line = raw[:start].count("\n") + 1
             end_line = start_line + chunk.count("\n")
 
+            
+
             chunks.append(
                 Document(
                     page_content=chunk,
@@ -121,6 +123,64 @@ class CodeIndexer:
             print("X No documents found to index.")
 
 
+    def update_file_chunks(self, updated_files: dict):
+        """
+        Incrementally update the vector DB for modified files.
+
+        Accept two formats for updated_files:
+        1) { "src/app/login.ts": "<content string>" }
+        2) { "src/app/login.ts": {"content": "<content string>"} }
+        """
+        docs_to_add = []
+        splitter = RecursiveCharacterTextSplitter(
+            chunk_size=400,
+            chunk_overlap=40
+        )
+
+        for file_path, value in updated_files.items():
+            # get content string no matter the input shape
+            if isinstance(value, dict) and "content" in value:
+                content = value["content"]
+            elif isinstance(value, str):
+                content = value
+            else:
+                raise ValueError(f"update_file_chunks: unsupported value for {file_path}: {type(value)}")
+
+            if not isinstance(content, str):
+                raise ValueError(f"update_file_chunks: content for {file_path} is not string")
+
+            print(f" Updating index for modified file: {file_path}")
+
+            # Remove old chunks for this file (collection-level delete)
+            try:
+                # depending on your vectorstore API - this is the pattern used earlier
+                self.db._collection.delete(where={"file": file_path})
+            except Exception:
+                # safe fallback if delete API differs
+                print(f" Warning: unable to delete old chunks for {file_path} using low-level API")
+
+            # Split new content into chunks
+            chunks = splitter.split_text(content)
+
+            for idx, chunk in enumerate(chunks):
+                doc = Document(
+                    page_content=chunk,
+                    metadata={
+                        "file": file_path,
+                        "chunk_id": idx
+                    }
+                )
+                docs_to_add.append(doc)
+
+            print(f"[+] Prepared {len(chunks)} fresh chunks for {file_path}")
+
+        if docs_to_add:
+            self.db.add_documents(docs_to_add)
+            print(f"[✓] Re-indexed {len(docs_to_add)} chunks from updated files.")
+        else:
+            print("[X] No updated documents to index.")
+
+
     def search(self, query, k=5):
         """
         Searches the vector store using LangChain's internal search mechanism.
@@ -132,16 +192,4 @@ class CodeIndexer:
         return self.db.similarity_search(query, k=k)
 
 
-# if __name__ == "__main__":
 
-#     indexer = CodeIndexer()
-#     indexer.index_project("generated_output/src/app")
-
-#     print("\n--- Running Search Query ---")
-#     results = indexer.search("change Password Recovery headline to forget password")
-
-    # for i, r in enumerate(results):
-    #     print(f"\n--- Match {i+1} ---")
-    #     print("FILE:", r.metadata["file"])
-    #     print("LINES:", r.metadata["start_line"], "-", r.metadata["end_line"])
-    #     print(r.page_content)
