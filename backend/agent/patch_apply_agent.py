@@ -13,50 +13,75 @@ from backend.utils.llm_client import LLMClient
 from google.genai import types
 import json
 import json_repair
+import os
 class PatchApplyAgent:
     def __init__(self):
         self.client = LLMClient.get()
 
     def run(self):
+
         changes = current_state.patch_plan["changes"]
 
-        # Build user content (NOT the system prompt)
-        user_content = {
-            "changes": []
-        }
-
+        # build the metadata
+        metadata_changes = []
         for change in changes:
-            file_path = change["file"]
-
-            # Load full file content safely
-            with open(file_path, "r", encoding="utf-8") as f:
-                full_code = f.read()
-
-            user_content["changes"].append({
-                "file": file_path,
+            metadata_changes.append({
+                "file": change["file"],
                 "reason": change["reason"],
                 "instructions": change["instructions"],
                 "excerpt": change["current_code_excerpt"],
-                "full_file": full_code,
             })
 
-        # Convert dict to JSON
-        json_blob  = json.dumps(user_content, indent=2, ensure_ascii=False)
-        user_message = f"""
-Here is a list of code changes that must be applied.
+        json_meta = json.dumps(
+            {"changes": metadata_changes},
+            indent=2,
+            ensure_ascii=False
+        )
 
-Each item contains:
-- file (full path)
-- full_file (the entire file before modification)
-- excerpt (a hint for where the change is)
-- instructions (the exact change needed)
+        
+        # 2. Build <file> blocks with full file content
+        
+        file_blocks = ""
+        for change in changes:
+            file_path = change["file"]
 
-You MUST apply modifications exactly as described.
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File not found: {file_path}")
 
-INPUT JSON:
-```json
-{json_blob}
-"""
+            with open(file_path, "r", encoding="utf-8") as f:
+                full_code = f.read()
+
+            file_blocks += f"""
+    <file path="{file_path}">
+    {full_code}
+    </file>
+    """
+
+ 
+    # 3. Build the full prompt
+ 
+        user_prompt = f"""
+    You are a code-editing agent.  
+    Your task is to update files based on the user's requested changes.
+
+    RULES:
+    1. Use the FULL FILE CONTENTS provided below only as READ-ONLY context.
+    2. NEVER include full file content in your output except in "updated_code".
+    3. Only output a valid JSON object. No explanations, no markdown.
+    4. Apply ONLY the changes described in CHANGES METADATA.
+    5. Do NOT modify anything else in the file.
+    6. If multiple edits target the same file, produce one merged update.
+
+    --------------------------------------------
+    CHANGES METADATA (small JSON)
+    --------------------------------------------
+    ```json
+    {json_meta}
+FULL FILE CONTENTS (context only — DO NOT RETURN THESE)
+
+{file_blocks}
+ """
+
 
         system_context = """
 You are a PATCH APPLY AGENT.
@@ -104,7 +129,7 @@ END OF RULES.
                 system_instruction=system_context,
                 response_mime_type="application/json"
             ),
-            contents=user_message
+            contents=user_prompt
         )
 
         
