@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse
 from fastapi.background import BackgroundTasks
 from backend.workflow.user_feedback_workflow import UserFeedbackWorkflow
 from .settings import GENERATED_DIR
+from .auto_script import delete_exist_files
 
 import os
 app = FastAPI()
@@ -31,22 +32,8 @@ async def generate(request: Request, prompt: str = Form(...)):
     print("="*50)
     print(f"successufly received Stored Prompt: {current_state.raw_user_prompt}")
     print("="*50)
-
-    # # Generating Workflow
-    # PromptEngineeringAgent().run()
-    # print(f"successufly Engineered the Prompt.....")
-    # print("\n" + "="*50)
-
-    
-    # SystemContextBuilder().build()
-    # print(f"successufly built the context and output Rules.....")
-    # print("\n" + "="*50)
-
-    # FeatureExtractionAgent().run()
-    # print(f"successufly Extracted features form user spec.....")
-    # print("\n" + "="*50)
-    # print(current_state.project_metadata.feature_files)
-    
+    delete_exist_files("generated_output\\src\\app")
+  
     LoopWorkflow().run()
     print(f"successufly Generated Files.....")
     print("\n Generated files (state.files_json):")

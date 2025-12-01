@@ -116,7 +116,10 @@ class CodeIndexer:
                     print(f"[+] Indexed {f} — {len(file_docs)} chunks")
 
         if docs:
-            self.db.add_documents(docs)
+            # self.db.add_documents(docs)
+            for i in range(0, len(docs), 100):
+                batch = docs[i:i+100]
+                self.db.add_documents(batch)
             
             print(f"Indexing complete. Total documents added: {len(docs)}")
         else:

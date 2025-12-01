@@ -82,7 +82,7 @@ class UserFeedbackWorkflow:
         print("\n=== Step 4: Writing Updated Files ===")
         writer = FileWriter("generated_output")
         normalized_for_writer  = _normalize_updated_files_for_writer(current_state.updated_files, writer.output_dir)
-        writer.write_files(normalized_for_writer )
+        writer.write_files(normalized_for_writer,  with_template=False)
 
         
         normalized_for_indexer = {

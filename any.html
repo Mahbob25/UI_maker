@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global English Institute | Learn English with Confidence</title>
+  <meta name="description" content="Master English with expert teachers, interactive classes, and proven results. Join thousands of successful students today!"/>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --accent: #4895ef;
+      --dark: #240046;
+      --light: #f8f9fa;
+      --gray: #6c757d;
+      --success: #06d6a0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    a { text-decoration: none; }
+
+    /* Header & Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 1rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      transition: 0.4s;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+    }
+
+    header.scrolled {
+      padding: 0.8rem 5%;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .logo span { color: var(--secondary); }
+
+    nav ul {
+      display: flex;
+      list-style: none;
+    }
+
+    nav ul li { margin-left: 2rem; }
+
+    nav ul li a {
+      color: #333;
+      font-weight: 500;
+      transition: 0.3s;
+      position: relative;
+    }
+
+    nav ul li a:hover {
+      color: var(--primary);
+    }
+
+    nav ul li a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background: var(--primary);
+      transition: 0.3s;
+    }
+
+    nav ul li a:hover::after { width: 100%; }
+
+    .menu-toggle {
+      display: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Hero Section */
+    .hero {
+      height: 100vh;
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1524178232363-1fb2b075b655?ixlib=rb-4.0.3&auto=format&fit=crop&q=80') center/cover no-repeat;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: white;
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 900px;
+      padding: 2rem;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    .hero h1 {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 14px 36px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: 0.4s;
+      box-shadow: 0 10px 30px rgba(67, 97, 238, 0.4);
+    }
+
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 35px rgba(67, 97, 238, 0.5);
+      background: var(--secondary);
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid white;
+      margin-left: 1rem;
+    }
+
+    .btn-outline:hover {
+      background: white;
+      color: var(--primary);
+    }
+
+    /* Sections */
+    section {
+      padding: 100px 5%;
+    }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 3rem;
+      color: var(--dark);
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      width: 80px;
+      height: 4px;
+      background: var(--primary);
+      display: block;
+      margin: 1rem auto;
+      border-radius: 2px;
+    }
+
+    /* Features */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      transition: 0.4s;
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    .feature-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-15px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .feature-card i {
+      font-size: 3.5rem;
+      color: var(--primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Courses */
+    .courses {
+      background: #f9f9ff;
+    }
+
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+    }
+
+    .course-card {
+      background: white;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      transition: 0.4s;
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    .course-card.visible {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .course-card:hover {
+      transform: translateY(-10px);
+    }
+
+    .course-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      loading: lazy;
+    }
+
+    .course-info {
+      padding: 1.5rem;
+    }
+
+    .course-info h3 {
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    .price {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+      margin: 1rem 0;
+    }
+
+    /* Testimonials */
+    .testimonials {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      text-align: center;
+    }
+
+    .testimonial-slider {
+      max-width: 800px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    .testimonial {
+      padding: 2rem;
+      display: none;
+    }
+
+    .testimonial.active {
+      display: block;
+      animation: fadeIn 1s;
+    }
+
+    .testimonial p {
+      font-size: 1.3rem;
+      font-style: italic;
+      margin-bottom: 2rem;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .testimonial-author img {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid white;
+      loading: lazy;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--dark);
+      color: white;
+      text-align: center;
+      padding: 3rem 5%;
+    }
+
+    .footer-links {
+      margin: 2rem 0;
+    }
+
+    .footer-links a {
+      color: #ccc;
+      margin: 0 1rem;
+      transition: 0.3s;
+    }
+
+    .footer-links a:hover {
+      color: var(--primary);
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .menu-toggle { display: block; }
+      nav ul {
+        position: fixed;
+        top: 70px;
+        left: -100%;
+        width: 100%;
+        height: 100vh;
+        background: white;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: 0.4s;
+      }
+
+      nav ul.active { left: 0; }
+
+      nav ul li { margin: 1.5rem 0; }
+
+      .hero h1 { font-size: 2.8rem; }
+      .hero p { font-size: 1.1rem; }
+
+      .btn-outline { margin-left: 0; margin-top: 1rem; }
+
+      .section-title { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="logo">Global<span>English</span></div>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#courses">Courses</a></li>
+        <li><a href="#features">Why Us</a></li>
+        <li><a href="#testimonials">Testimonials</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="menu-toggle"><i class="fas fa-bars"></i></div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <h1>Master English<br>With Confidence</h1>
+      <p>Join thousands of students who improved their English with our expert teachers and proven methods.</p>
+      <a href="#courses" class="btn">Explore Courses</a>
+      <a href="#contact" class="btn btn-outline">Free Trial Class</a>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <h2 class="section-title">Why Choose Global English?</h2>
+    <div class="features">
+      <div class="feature-card">
+        <i class="fas fa-chalkboard-teacher"></i>
+        <h3>Expert Native Teachers</h3>
+        <p>Learn from certified, experienced teachers from UK, USA, Canada & Australia.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-clock"></i>
+        <h3>Flexible Schedule</h3>
+        <p>Study anytime, anywhere with 24/7 access to classes and materials.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-certificate"></i>
+        <h3>Certified Courses</h3>
+        <p>Get internationally recognized certificates upon course completion.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-users"></i>
+        <h3>Small Classes</h3>
+        <p>Maximum 8 students per class for personalized attention.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-headset"></i>
+        <h3>24/7 Support</h3>
+        <p>Our team is always here to help you on your learning journey.</p>
+      </div>
+      <div class="feature-card">
+        <i class="fas fa-trophy"></i>
+        <h3>Proven Results</h3>
+        <p>95% of our students achieve their target scores in IELTS, TOEFL, etc.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Courses -->
+  <section id="courses" class="courses">
+    <h2 class="section-title">Our Popular Courses</h2>
+    <div class="course-grid">
+      <div class="course-card">
+        <img src="https://images.unsplash.com/photo-1456518602086-3ea50eb87e5d?ixlib=rb-4.0.3&auto=format&fit=crop&q=80" alt="General English" loading="lazy">
+        <div class="course-info">
+          <h3>General English</h3>
+          <p>Improve speaking, listening, reading & writing for daily use</p>
+          <div class="price">$99<span>/month</span></div>
+          <a href="#" class="btn">Enroll Now</a>
+        </div>
+      </div>
+      <div class="course-card">
+        <img src="https://images.unsplash.com/photo-1434030218603-b6b7c6b08c0f?ixlib=rb-4.0.3&auto=format&fit=crop&q=80" alt="IELTS Preparation" loading="lazy">
+        <div class="course-info">
+          <h3>IELTS Preparation</h3>
+          <p>Achieve band 7+ with expert strategies and practice</p>
+          <div class="price">$149<span>/month</span></div>
+          <a href="#" class="btn">Enroll Now</a>
+        </div>
+      </div>
+      <div class="course-card">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&auto=format&fit=crop&q=80" alt="Business English" loading="lazy">
+        <div class="course-info">
+          <h3>Business English</h3>
+          <p>Master professional communication, emails, meetings & presentations</p>
+          <div class="price">$129<span>/month</span></div>
+          <a href="#" class="btn">Enroll Now</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials" class="testimonials">
+    <h2 class="section-title">What Our Students Say</h2>
+    <div class="testimonial-slider">
+      <div class="testimonial active">
+        <p>"Thanks to Global English, I scored 8.0 in IELTS on my first attempt! The teachers are amazing and the classes are so interactive."</p>
+        <div class="testimonial-author">
+          <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Maria S.">
+          <div>
+            <strong>Maria S.</strong><br>Ielts Band 8.0
+          </div>
+        </div>
+      </div>
+      <div class="testimonial">
+        <p>"I improved my speaking confidence dramatically in just 3 months. Now I speak English fluently at my workplace!"</p>
+        <div class="testimonial-author">
+          <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Ahmed K.">
+          <div>
+            <strong>Ahmed K.</strong><br>Software Engineer
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact">
+    <h2>Join Us Today!</h2>
+    <p>Start your English learning journey with a <strong>Free Trial Class</strong></p>
+    <a href="#" class="btn" style="margin: 2rem 0;">Book Free Class</a>
+    <div class="footer-links">
+      <a href="#"><i class="fab fa-facebook"></i></a>
+      <a href="#"><i class="fab fa-instagram"></i></a>
+      <a href="#"><i class="fab fa-youtube"></i></a>
+      <a href="#"><i class="fab fa-whatsapp"></i></a>
+    </div>
+    <p>&copy; 2025 Global English Institute. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Header scroll effect
+    window.addEventListener('scroll', () => {
+      const header = document.querySelector('header');
+      header.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // Mobile menu
+    document.querySelector('.menu-toggle').addEventListener('click', () => {
+      document.querySelector('nav ul').classList.toggle('active');
+    });
+
+    // Smooth reveal animation
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.feature-card, .course-card').forEach(card => {
+      observer.observe(card);
+    });
+
+    // Testimonial slider
+    const testimonials = document.querySelectorAll('.testimonial');
+    let current = 0;
+
+    setInterval(() => {
+      testimonials[current].classList.remove('active');
+      current = (current + 1) % testimonials.length;
+      testimonials[current].classList.add('active');
+    }, 6000);
+
+    // Lazy loading is handled by loading="lazy" on images
+  </script>
+</body>
+</html>

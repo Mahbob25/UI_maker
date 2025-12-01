@@ -41,7 +41,7 @@ class LoopWorkflow:
         # 4) Generate each file based on planning
         for file_path in file_queue:
             self._handle_file(file_path)
-            break
+            
             
             
             

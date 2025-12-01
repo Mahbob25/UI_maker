@@ -122,7 +122,9 @@ celerybeat.pid
 
 # SageMath parsed files
 *.sage.py
-
+../chroma_code_index/
+chroma_code_index/
+generated_output
 # Environments
 .env
 .venv

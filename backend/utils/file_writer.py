@@ -13,14 +13,17 @@ class FileWriter:
         
         self.output_dir = Path(output_dir)
 
-    def write_files(self, files_json: Dict[str, Dict[str, str]]):
+    def write_files(self, files_json: Dict[str, Dict[str, str]], with_template=True):
         """
         Takes a dict of file paths and content and writes them to disk.
 
       
         """
-        print("copying base Angular project.....", "="*50)
-        self._copy_base_template()
+        if with_template:
+            print("copying base Angular project.....", "="*50)
+            self._copy_base_template()
+        else:
+            print("Skipping template copy (modify workflow only)....")
 
         print(f"\n==> Writing project files into: {self.output_dir}\n")
 
@@ -82,10 +85,24 @@ class FileWriter:
 
 
 
+    # def _copy_base_template(self):
+    #     base_template = Path("backend/workflow/angular_base_template")
+    #     if not self.output_dir.exists():
+    #         shutil.copytree(base_template, self.output_dir)
+    #         print("(-_-) Base template copied.")
+    #     else:
+    #         print("[-_-] Base template already exists. Reusing it.")
+
+
     def _copy_base_template(self):
-        base_template = Path("backend/workflow/angular_base_template")
-        if not self.output_dir.exists():
-            shutil.copytree(base_template, self.output_dir)
-            print("(-_-) Base template copied.")
-        else:
-            print("[-_-] Base template already exists. Reusing it.")
+        base_template_app = Path("backend/workflow/angular_base_template/src/app")
+        target_app = self.output_dir / "src" / "app"
+
+        # ❗ Always remove the existing app folder (if any)
+        if target_app.exists():
+            shutil.rmtree(target_app)
+
+        # ❗ Copy the template's app folder into the generated folder
+        shutil.copytree(base_template_app, target_app)
+
+        print("(-_-) Fresh Angular app template copied.")
