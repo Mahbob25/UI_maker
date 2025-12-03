@@ -71,6 +71,9 @@ When generating ANY Angular template (inside template: ``):
 - Use routerLink for navigation.
 - When routerLink is used, MUST import RouterLink from '@angular/router'.
 
+# INLINE STYLES SAFETY RULE (MANDATORY)
+do NEVER add this "styles: []" int the code
+
 
 # TAILWIND RULES (MANDATORY — NO EXCEPTIONS)
 - ALL styling MUST be through Tailwind utility classes.
@@ -95,6 +98,9 @@ Use these Tailwind tokens consistently:
 - h2: text-3xl font-semibold
 - h3: text-xl font-semibold
 - body: text-base md:text-lg text-gray-600
+- Headings MUST use a modern gradient text effect when appropriate:
+  example: class="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
+
 
 ### LAYOUT
 - Page max-width: max-w-6xl mx-auto px-6
@@ -127,11 +133,39 @@ Use these Tailwind tokens consistently:
     bg-gray-900 text-gray-300 py-12
   (or another consistent pattern you establish)
 
-### ICONS
-- Use emoji or inline SVG — NEVER external libraries.
+ICON GENERATION RULES:
+1. Always use inline SVG icons — NEVER use <img> tags and NEVER use asset files.
+2. Try to use a Lucide icon first. Use the full inline SVG (no imports, no Angular modules).
+3. If the requested brand icon is not available in Lucide, use the equivalent icon from the Simple Icons SVG library.
+   - Simple Icons SVGs are open-source and can be embedded directly into the HTML.
+   - Example usage:
+     <svg ...> ... </svg>
+4. If neither Lucide nor Simple Icons has the brand icon, fall back to a generic Lucide icon:
+     - circle
+     - square
+     - box
+     - generic image icon
+   And place the brand name as text under the icon.
+5. All icons must be inline SVGs embedded directly in the HTML with Tailwind classes.
+6. Maintain consistent sizing styles:
+     class="h-12 w-12 opacity-60 hover:opacity-100 transition"
+7. Do NOT reference external PNG/JPG images.
+8. Do NOT assume icons exist in the Angular assets folder.
+
 
 # FEATURE PLAN (STRICT — DO NOT MODIFY, USE EXACTLY)
 {feature_plan_json}
+
+#landing pages skeleton:
+<header id="hero"></header>
+<section id="trusted"></section>
+<section id="services"></section>
+<section id="why"></section>
+<section id="stats"></section>
+<section id="process"></section>
+<section id="testimonials"></section>
+<section id="cta"></section>
+<footer id="footer"></footer>
 
 """
         return rules.strip()

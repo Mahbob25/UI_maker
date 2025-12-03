@@ -45,18 +45,25 @@ class PatchApplyAgent:
         for change in changes:
             file_path = change["file"]
 
+            # SAFE PATH FIX
+            if os.path.basename(file_path) == file_path:
+                file_path = os.path.join("generated_output", "src", "app", file_path)
+
             if not os.path.exists(file_path):
-                raise FileNotFoundError(f"File not found: {file_path}")
+                raise FileNotFoundError(
+                    f"File not found: {file_path} (resolved from '{change['file']}')"
+                )
 
             with open(file_path, "r", encoding="utf-8") as f:
                 full_code = f.read()
+
 
             file_blocks += f"""
     <file path="{file_path}">
     {full_code}
     </file>
     """
-
+        print("full code ====>", full_code)
  
     # 3. Build the full prompt
  
@@ -98,6 +105,11 @@ RULES:
 - Keep code style identical to the original.
 - If the snippet appears multiple times, modify ONLY the occurrence that most closely matches the surrounding context.
 - Do NOT add explanations, comments, or markdown.
+If the provided code excerpt does NOT appear in the file:
+- Do NOT abort.
+- Do NOT skip the file.
+- Instead, follow the INSTRUCTIONS and perform the best possible modification.
+- If the target code does not exist, ADD it in the most reasonable location.
 
 - Return ONLY strict JSON:
 {
@@ -118,6 +130,19 @@ INPUTS PROVIDED TO YOU:
 - excerpt: a small code segment where the change should happen
 - instructions: the required modification described in natural language
 - reason: why this change is needed (helps you choose correct region)
+You MUST apply ALL patches listed in "changes". 
+
+For each item in the "changes" array:
+- Locate the exact current_code_excerpt inside the file.
+- Apply ONLY the specified change.
+- Do NOT skip any item.
+- Do NOT merge or combine patches.
+- Process them sequentially, from first to last.
+- Output the full updated file content after ALL patches are applied.
+
+DO NOT stop after the first match.
+DO NOT assume the user wants only one change.
+You MUST apply every patch in the "changes" list.
 
 END OF RULES.
 

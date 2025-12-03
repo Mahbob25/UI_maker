@@ -27,29 +27,39 @@ async def root(request: Request):
     )
 
 @app.post("/generate")
-async def generate(request: Request, prompt: str = Form(...)):
+async def generate(
+    request: Request,
+    prompt: str = Form(...),
+    ):
+    
     current_state.raw_user_prompt = str(prompt)
     print("="*50)
     print(f"successufly received Stored Prompt: {current_state.raw_user_prompt}")
     print("="*50)
     delete_exist_files("generated_output\\src\\app")
-  
+    
     LoopWorkflow().run()
     print(f"successufly Generated Files.....")
     print("\n Generated files (state.files_json):")
     print("\n" + "="*50)
 
+    pages = current_state.project_metadata.feature_files
 
     return templates.TemplateResponse(
-        request=request, name="download.html"
-    )
+    "download.html",
+    {
+        "request": request,
+        "pages": pages
+    }
+)
+
 
 @app.get("/download")
 def download_project(background_tasks: BackgroundTasks):
     
     ZIP_PATH = GENERATED_DIR.with_suffix(".zip")
     #delet automatically after downloading.
-    background_tasks.add_task(os.remove, str(ZIP_PATH))
+    
 
     response = FileResponse(
         path=ZIP_PATH,
@@ -59,8 +69,13 @@ def download_project(background_tasks: BackgroundTasks):
 
     return response
 @app.post("/modify")
-async def modify_project(modify_prompt: str = Form(...)):
+async def modify_project(
+    modify_prompt: str = Form(...),
+    pages_name: str = Form(None)
+    ):
     current_state.modify_prompt = modify_prompt
+    current_state.page_to_be_modified = pages_name
+    
     UserFeedbackWorkflow().run()
     return RedirectResponse(url="/download", status_code=303)
     

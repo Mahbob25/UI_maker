@@ -29,9 +29,10 @@ class LoopWorkflow:
         print("="*50)
 
         # 2) Feature planning 
-        FeaturePlanningAgent().run()
+        plan = FeaturePlanningAgent().run()
         print(f"successufly Planned The project features.....")
         print("="*50)
+        print(plan)
 
         # 3) Collect planned file targets
         file_queue = self._collect_files()  
@@ -41,6 +42,7 @@ class LoopWorkflow:
         # 4) Generate each file based on planning
         for file_path in file_queue:
             self._handle_file(file_path)
+            
             
             
             
@@ -81,6 +83,7 @@ class LoopWorkflow:
 
         # ensure routing is last
         files = sorted(files, key=lambda f: f.endswith("app.routes.ts"))
+        current_state.project_metadata.feature_files = files
         return list(files)
 
 

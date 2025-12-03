@@ -200,6 +200,17 @@
 
     <div class="change-request">
       <form action="/modify" method="POST" enctype="multipart/form-data">
+        
+        <label style="display:block; margin-bottom:8px; font-weight:bold; color:#333;">
+          Choose what Page to focus on (optional):
+        </label>
+        <select name="pages_name" 
+                style="width:100%; padding:14px; margin-bottom:20px; border:2px solid #ddd; border-radius:8px; font-size:16px; background:white;"
+                onchange="if(this.value) document.getElementById('request').value = this.value;">
+          {% for page in pages %}
+            <option value="{{ page }}">{{ page }}</option>   <!-- THIS WAS BROKEN -->
+          {% endfor %}
+        </select> 
         <label for="request">Want to change something?</label>
         <textarea 
           name="modify_prompt" 
@@ -215,5 +226,22 @@
       Powered by AgentCoder • Built with love for developers
     </footer>
   </div>
+  <script>
+    // Click to toggle (better UX than just hover)
+    document.querySelector('button').addEventListener('click', function(e) {
+      const menu = this.nextElementSibling;
+      menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+      e.stopPropagation();
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', function() {
+      document.querySelectorAll('[style*="display: block"]').forEach(el => {
+        if (el.tagName === 'DIV' && el.children[0]?.tagName === 'A') {
+          el.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

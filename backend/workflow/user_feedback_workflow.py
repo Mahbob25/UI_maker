@@ -67,10 +67,14 @@ class UserFeedbackWorkflow:
         print(search)
 
         print("\n===  Step 2: Generating Patch Plan ===")
-        PatchPlanningAgent().run(
+        plan = PatchPlanningAgent().run(
             user_prompt=current_state.modify_prompt,
-            code_snippets=current_state.search_results
+            code_snippets=current_state.search_results,
+            target_page=current_state.page_to_be_modified
         )
+        print(plan)
+        if current_state.page_to_be_modified:
+            print("Got the specific page provided by the user...")
         
         if not current_state.patch_plan.get("changes"):
             return "No matching code found for this request"
@@ -96,7 +100,7 @@ class UserFeedbackWorkflow:
         self.indexer.update_file_chunks(normalized_for_indexer)
 
         print("\n===  Step 6: Zipping the Folder ===")
-        zip_folder(GENERATED_DIR, BASE_DIR) #zip and delete source
+        # zip_folder(GENERATED_DIR, BASE_DIR) #zip and delete source
         print("your zip is ready.")
 
         def _parse_and_store(self, file_path: str, raw: str):

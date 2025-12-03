@@ -66,7 +66,7 @@ Naming Rules:
         current_state.feature_plan = planning_json
         return planning_json
 
-    # ---------- Internal Helpers ----------
+   
 
     def _call_llm(self, spec: str) -> Dict[str, Any]:
         """Calls LLM to get app name + features."""

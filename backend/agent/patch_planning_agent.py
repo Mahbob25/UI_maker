@@ -7,13 +7,16 @@ class PatchPlanningAgent():
     def __init__(self):
         self.client = LLMClient().get()
 
-    def run(self, user_prompt: str, code_snippets: str):
+    def run(self, user_prompt: str, code_snippets: str, target_page: str = None):
         prompt = f"""
 USER REQUEST:
 {user_prompt}
 
 RELEVANT CODE SNIPPETS (from semantic search):
 {code_snippets}
+
+Target Page(if provided):
+{target_page}
 
 Your task:
 Analyze the snippets and create a JSON patch plan following the required schema.
@@ -39,6 +42,7 @@ What you produce:
 Inputs you receive:
 1. User request (e.g., “Change the Login header to Welcome Back User”)
 2. A list of code snippets (each includes: file path, lines, and snippet content)
+2- the specific page to be modified if the user provide it.
 
 Your Tasks:
 - Analyze all provided snippets
@@ -79,8 +83,13 @@ When extracting the CURRENT_CODE_EXCERPT:
 - Do NOT include descriptions, comments, or parent tags unless the instruction explicitly requires modifying them.
 - The excerpt must be the minimal text needed for the patch agent to locate the right code.
 - If the item to be changed is within an HTML tag, include ONLY that tag.
-
-
+If the user specifies a target file name, OR if the target file name exists in the project metadata, 
+you MUST produce a change plan even if no code snippet was provided.
+If code snippet is missing: 
+- Assume the file exists and plan the changes based on the user's instructions.
+- Describe in natural language WHAT must be changed without referencing the exact old code.
+Only return an empty plan if:
+- The file name does not exist AND there is no provided code snippets.
 Goal:
 Your output will be consumed by a Code Generation Patch Agent that will apply the actual changes. Your job is only planning.
 

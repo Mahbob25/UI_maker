@@ -68,5 +68,7 @@ class AgentState(BaseModel):
 
     updated_files: Dict[str, str] = Field(default_factory=dict) 
 
+    page_to_be_modified: str | None = None 
+
 
 
