@@ -23,6 +23,10 @@ class LoopWorkflow:
 
     def run(self):
         
+        # 0) Clear previous index
+        print("Clearing previous vector index...")
+        self.indexer.reset_index()
+
         # 1) Prompt engineering
         PromptEngineeringAgent().run()
         print(f"successufly Engineered the Prompt.....")
@@ -72,19 +76,26 @@ class LoopWorkflow:
         
 
     def _collect_files(self):
-
-        # New build: planned files + routing file
-        files = {
-            feature["file_name"]
-            for feature in current_state.feature_plan["features"]
-        }
-        # include routing
+        plan = current_state.feature_plan
+        is_router = plan.get("router", True)
+        
+        files = set()
+        
+        # ALWAYS generate the root shell
+        files.add("src/app/app.component.ts")
+        files.add("src/app/app.component.html")
         files.add("src/app/app.routes.ts")
 
-        # ensure routing is last
-        files = sorted(files, key=lambda f: f.endswith("app.routes.ts"))
-        current_state.project_metadata.feature_files = files
-        return list(files)
+        if is_router:
+            # Multi-page: Add individual feature pages
+            for feature in plan.get("features", []):
+                if feature.get("file_name"):
+                    files.add(feature["file_name"])
+        
+        # If router=false, we DO NOT add feature files. 
+        # The content will be generated inside app.component.html
+        
+        return sorted(list(files))
 
 
     def _handle_file(self, file_path: str):

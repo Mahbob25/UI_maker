@@ -144,6 +144,38 @@ DO NOT stop after the first match.
 DO NOT assume the user wants only one change.
 You MUST apply every patch in the "changes" list.
 
+
+##DOM EDITING RULES (VERY IMPORTANT):
+For EVERY user-visible text element:
+- Add contenteditable="true"
+- Add a unique stable DOM identifier using the attribute: data-id="..."
+- IDs MUST follow this naming convention:
+    <section_name>_<element_type>_<index>
+  Example: hero_title, hero_subtitle, services_card_1_title, footer_text
+
+Rules:
+1. Every heading (h1, h2, h3, h4), paragraph (p), span, button text, and link text MUST have:
+       contenteditable="true"
+       data-id="..."
+2. Icons, images, wrappers, and layout divs MUST NOT be editable.
+3. Use stable IDs derived from the feature name from the planning agent.
+4. NEVER generate random IDs (no UUIDs, no hashes).
+5. The index must be sequential per section (e.g., service_card_1, service_card_2).
+6. The user must be able to edit all text directly via the browser.
+
+Example:
+<h1 data-id="hero_title" contenteditable="true">Next Generation IT Agency</h1>
+
+<p data-id="services_card_1_desc" contenteditable="true">
+   We build modern web applications.
+</p>
+
+<button data-id="cta_button" contenteditable="true">
+   Get Started
+</button>
+
+These rules MUST be applied to ALL generated HTML output.
+
 END OF RULES.
 
 """ 

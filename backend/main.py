@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, Form
 from fastapi.responses import RedirectResponse
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from backend.agent.registry import current_state 
@@ -18,6 +19,18 @@ import os
 app = FastAPI()
 
 templates = Jinja2Templates(directory="frontend")
+
+class SavePageRequest(BaseModel):
+    page_id: str
+    html: str
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],     # VERY IMPORTANT
+    allow_headers=["*"],     # VERY IMPORTANT
+)
 
 
 @app.get("/")
@@ -79,3 +92,16 @@ async def modify_project(
     UserFeedbackWorkflow().run()
     return RedirectResponse(url="/download", status_code=303)
     
+
+@app.post("/save-page")
+def save_page(req: SavePageRequest):
+    print("hejj")
+    os.makedirs("saved_pages", exist_ok=True)
+    file_path = f"saved_pages/{req.page_id}.html"
+
+    print("Saving to:", os.path.abspath(file_path))
+
+    with open(file_path, "w", encoding="utf-8") as f:
+        f.write(req.html)
+
+    return {"status": "ok"}

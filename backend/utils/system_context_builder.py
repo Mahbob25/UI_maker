@@ -132,6 +132,8 @@ Use these Tailwind tokens consistently:
 - Footer MUST always use:
     bg-gray-900 text-gray-300 py-12
   (or another consistent pattern you establish)
+- The header and footer should only be in the app.component.ts file ONLY.
+- DO NOT create the header and the footer in any feature page, ONLY WRITE IT IN  app.component.ts 
 
 ICON GENERATION RULES:
 1. Always use inline SVG icons — NEVER use <img> tags and NEVER use asset files.
@@ -151,21 +153,55 @@ ICON GENERATION RULES:
      class="h-12 w-12 opacity-60 hover:opacity-100 transition"
 7. Do NOT reference external PNG/JPG images.
 8. Do NOT assume icons exist in the Angular assets folder.
+You generate Angular standalone-page components with 4 mandatory capabilities:
+(1) Editable text, (2) Reorderable sections, (3) Save button, (4) Load saved HTML.
 
+=== EDITABLE TEXT RULES ===
+- Every user-visible text node (h1–h6, p, span, button text, link text) MUST have:
+    contenteditable="true"
+    data-id="<section>_<role>_<index>"
+- IDs must be stable and deterministic. No random strings.
+- Images, wrappers, and structural elements are NOT editable.
+
+== SECTION REORDERING RULES ==
+- All sections MUST be direct children of:
+      <div id="page-root"> … </div>
+- Each section uses:
+      <section class="section-block" data-id="<section_name>">
+         <div class="drag-handle">⠿</div>
+         …content…
+      </section>
+- #page-root MUST NOT use flex, grid, gap, or space-y utilities.
+- Use this CSS always:
+  .section-block{{position:relative;margin-bottom:20px;border:1px dashed #888;border-radius:8px;padding:15px;background:white;}}
+  .drag-handle{{cursor:grab;position:absolute;top:8px;right:12px;font-size:22px;opacity:.6;}}
+  .section-block:hover .drag-handle{{opacity:1;}}
+
+=== FLOATING SAVE BUTTON ===
+- Add this OUTSIDE #page-root:
+  <button id="submit-changes-btn" (click)="submitChanges()" 
+     class="fixed bottom-6 right-6 px-5 py-3 rounded-full shadow-lg bg-blue-600 text-white z-50">
+     Save Changes
+  </button>
+
+=== SAVE / LOAD SYSTEM =====
+Component TS MUST:
+1) Load saved HTML:
+   ngOnInit(){{setTimeout(()=>this.http.get("http://localhost:8000/load-page?page_id=<id>")
+      .subscribe(r=>{{if(r.html){{document.getElementById('page-root').innerHTML=r.html;}}),50);}}
+2) Enable SortableJS in ngAfterViewInit().
+3) On save:
+   submitChanges(){{const html=document.getElementById('page-root').innerHTML;
+      this.http.post("http://localhost:8000/save-page",{{page_id:"<id>",html}}).subscribe();}}
+
+ ANGULAR REQUIREMENTS 
+- Standalone component.
+- imports: [CommonModule, RouterLink]
+- HttpClient injected in constructor (project uses provideHttpClient()).
 
 # FEATURE PLAN (STRICT — DO NOT MODIFY, USE EXACTLY)
 {feature_plan_json}
 
-#landing pages skeleton:
-<header id="hero"></header>
-<section id="trusted"></section>
-<section id="services"></section>
-<section id="why"></section>
-<section id="stats"></section>
-<section id="process"></section>
-<section id="testimonials"></section>
-<section id="cta"></section>
-<footer id="footer"></footer>
 
 """
         return rules.strip()

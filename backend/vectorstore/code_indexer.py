@@ -75,6 +75,22 @@ class CodeIndexer:
             separators=["\n\n", "\n", " ", ""]
         )
 
+    def reset_index(self):
+        """
+        Clears the entire vector database.
+        """
+        print("Resetting vector index...")
+        try:
+            self.db.delete_collection()
+            # Re-initialize the collection
+            self.db = Chroma(
+                persist_directory=self.chroma_path,
+                embedding_function=self.embedding_model
+            )
+            print("Vector index reset successfully.")
+        except Exception as e:
+            print(f"Warning: Failed to reset vector index: {e}")
+
     def _read_file(self, file_path):
         with open(file_path, "r", encoding="utf-8") as f:
             return f.read()
