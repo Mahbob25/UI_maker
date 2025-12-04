@@ -9,6 +9,7 @@ from backend.agent.fix_agent import FixAgent
 from backend.utils.symbol_extractor import SymbolExtractor
 from backend.utils.file_writer import FileWriter
 from backend.vectorstore.code_indexer import CodeIndexer
+from backend.themes.themes import get_theme_replacements
 
 
 from backend.utils.folder_zipper import zip_folder
@@ -22,6 +23,8 @@ class LoopWorkflow:
         self.indexer = CodeIndexer()
 
     def run(self):
+        # Reset state for new run
+        current_state.reset()
         
         # 0) Clear previous index
         print("Clearing previous vector index...")
@@ -60,7 +63,7 @@ class LoopWorkflow:
         print("="*50)
 
         print("==> writing files.....")
-        writer = FileWriter("generated_output")  # your output directory
+        writer = FileWriter(GENERATED_DIR)  # your output directory
         writer.write_files(current_state.files_json)
 
         print("==> Indexing files.....")
@@ -70,7 +73,7 @@ class LoopWorkflow:
         
         print("="*50)
         print("zipping folder.....")
-        zip_folder(GENERATED_DIR, BASE_DIR) #zip and delete source
+        zip_folder(GENERATED_DIR, GENERATED_DIR.parent) #zip and delete source
         print("your zip is ready.")
 
         
@@ -137,6 +140,18 @@ class LoopWorkflow:
         
     def _parse_and_store(self, file_path: str, raw: str):
         parsed = FileValidator.parse_llm_json(raw)
+        
+        # Apply Theme Replacements
+        if current_state.feature_plan:
+            theme_name = current_state.feature_plan.get("theme", "default")
+            replacements = get_theme_replacements(theme_name)
+            
+            content = parsed.get("content", "")
+            for token, value in replacements.items():
+                content = content.replace(token, value)
+            
+            parsed["content"] = content
+
         current_state.files_json[file_path] = parsed
         return parsed
 

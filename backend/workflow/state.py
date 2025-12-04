@@ -74,5 +74,27 @@ class AgentState(BaseModel):
 
     auto_theme_enabled: bool = True    # if False, planner must not choose
 
+    def reset(self):
+        """Resets the state to default values for a new run."""
+        self.raw_user_prompt = ""
+        self.spec_clean = None
+        self.files_json_raw = {}
+        self.files_json = {}
+        self.errors = []
+        self.json_retry_count = 0
+        self.code_fix_retry_count = 0
+        self.project_metadata = ProjectMetadata()
+        self.security_flags = []
+        self.system_context = None
+        self.symbols = []
+        self.feature_plan = None
+        self.modify_prompt = None
+        self.search_results = None
+        self.patch_plan = None
+        self.updated_files = {}
+        self.page_to_be_modified = None
+        self.user_selected_theme = None
+        self.auto_theme_enabled = True
+
 
 
