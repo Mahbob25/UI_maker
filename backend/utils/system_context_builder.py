@@ -1,5 +1,6 @@
 from backend.utils.llm_client import LLMClient
 from backend.agent.registry import current_state
+from backend.themes.themes import THEMES
 
 
 class SystemContextBuilder:
@@ -12,6 +13,11 @@ class SystemContextBuilder:
     def build(self) -> str:
       # Extract planning JSON (must exist before build)
       feature_plan_json = current_state.feature_plan
+      theme_name = feature_plan_json.get("theme", "default")
+      theme  = THEMES.get(theme_name, THEMES["default"])
+      print("=" * 50)
+      print(theme_name, "\n", theme )
+      print("=" * 50)
       api_url = "http://localhost:8000/save-page"
 
       rules = f"""
@@ -61,12 +67,7 @@ Your job:
  Angular WILL break if '@' is used raw in text.
 - Therefore ALWAYS encode:
     @  →  &#64;
-    &  →  &amp;
-    "  →  &quot;
-    '  →  &#39;
-- DO NOT encode:
-    <   >
-- Tags MUST remain normal HTML tags.
+- ONLY ENCODE THE @ symbole
 
 2) PAGE CSS FILES (*.page.css)
 - These files contain page-scoped CSS helpers.
@@ -201,47 +202,63 @@ Your job:
   - Small visual refinements not easily expressed with Tailwind.
 - NO external CSS frameworks.
 - NO inline <style> blocks in HTML.
+# ================= ACTIVE THEME: {theme_name} =================
+# =============== THEME SYSTEM (CRITICAL) ======================
+# The generator MUST use the theme tokens defined below.
+#
+# IMPORTANT:
+# The theme tokens below are *already the final Tailwind class strings*.
+# You MUST insert these final strings DIRECTLY into the HTML.
+# You MUST NOT output {{ theme.xyz }} or THEME_* inside HTML.
+# You MUST expand them before producing HTML.
 
-### GLOBAL DESIGN SYSTEM (YOU MUST FOLLOW)
-Use these Tailwind tokens consistently:
+### THEME TOKENS — FINAL CLASS STRINGS ###
+THEME_BACKGROUND = "{theme['background']}"
 
-### COLORS
-- Primary: text-blue-600, bg-blue-600, hover:bg-blue-700
-- Accent: text-amber-500 or bg-amber-500
-- Text dark: text-gray-800
-- Text muted: text-gray-500
-- Background: bg-gray-50
-- Surface: bg-white shadow rounded-xl
+THEME_SURFACE = "{theme['colors']['surface']}"
+THEME_CARD = "{theme['colors']['card']}"
+THEME_INPUT = "{theme['colors']['input']}"
 
-### TYPOGRAPHY
-- h1: text-4xl md:text-5xl font-bold
-- h2: text-3xl font-semibold
-- h3: text-xl font-semibold
-- body: text-base md:text-lg text-gray-600
-- Headings SHOULD often use a modern gradient text effect:
-  class="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
+THEME_BUTTON = "{theme['colors']['button']}"
+THEME_BUTTON_HOVER = "{theme['colors']['button_hover']}"
 
-### LAYOUT
-- Page max-width: max-w-6xl mx-auto px-6
-- Section spacing: py-16 md:py-24
-- Grid: grid grid-cols-1 md:grid-cols-2 or 3 or 4 gap-6
+THEME_HEADING = "{theme['colors']['heading']}"
+THEME_TEXT = "{theme['colors']['text']}"
+THEME_ACCENT = "{theme['colors']['accent']}"
 
-### COMPONENT PATTERNS
-- Buttons:
-  class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-- Card:
-  class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition"
-- Container:
-  class="max-w-6xl mx-auto px-6"
+THEME_CARD_SHADOW = "{theme['effects']['card_shadow']}"
+THEME_BUTTON_SHADOW = "{theme['effects']['button_shadow']}"
+THEME_HOVER_GLOW = "{theme['effects']['hover_glow']}"
+THEME_TRANSITION = "{theme['effects']['transition']}"
 
-### RESPONSIVENESS
-- ALWAYS use md:, lg:, xl: Tailwind breakpoints where appropriate.
-- Layout MUST adapt to mobile → tablet → desktop.
+THEME_RADIUS_CARD = "{theme['radius']['card']}"
+THEME_RADIUS_BUTTON = "{theme['radius']['button']}"
+THEME_RADIUS_INPUT = "{theme['radius']['input']}"
+### END THEME TOKENS ###
 
-### INTERACTIVITY
-- ALWAYS add hover states for clickable UI elements.
-- Use Tailwind transitions:
-  class="transition duration-200"
+# ================= MANDATORY USAGE RULES ======================
+# NEVER output {{ theme.xyz }} in HTML.
+# NEVER output "THEME_CARD" or other token names in HTML.
+# ALWAYS EXPAND tokens BEFORE writing HTML.
+#
+# Examples:
+# Correct:
+#   <div class="bg-[#1f1d36]/90 rounded-2xl shadow-[0_0_20px_rgba(108,99,255,0.25)]">
+#
+# Incorrect:
+#   <div class="{{ theme.card }}">
+#   <div class="THEME_CARD">
+#
+# Required mappings:
+# - Page background → THEME_BACKGROUND
+# - Cards → THEME_CARD THEME_CARD_SHADOW THEME_RADIUS_CARD
+# - Inputs → THEME_INPUT THEME_RADIUS_INPUT
+# - Buttons → THEME_BUTTON THEME_BUTTON_HOVER THEME_BUTTON_SHADOW THEME_RADIUS_BUTTON THEME_TRANSITION
+# - Headings → THEME_HEADING
+# - Text → THEME_TEXT
+# - Accent text / links → THEME_ACCENT
+# If you produce HTML containing THEME_* or {{ theme.* }}, regenerate the template.
+
 
 ### HEADER & FOOTER RULES (GLOBAL CONSISTENCY)
 - Header MUST be defined only in app.component.html, never in feature pages.
@@ -305,7 +322,6 @@ page_id MUST be derived from the file name:
 'education-history'
 'personal-details'
 Work only with kebab-case.
-
 NEVER random IDs.
 
 # FEATURE PLAN (STRICT — DO NOT MODIFY, USE EXACTLY)

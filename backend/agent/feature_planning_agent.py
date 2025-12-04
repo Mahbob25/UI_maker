@@ -4,6 +4,7 @@ from typing import List, Dict, Any
 from google.genai import types
 from backend.agent.registry import current_state
 from backend.utils.llm_client import LLMClient
+from backend.themes.themes import THEMES
 
 
 class FeaturePlanningAgent:
@@ -35,7 +36,8 @@ Output REQUIRED Format (STRICT):
   "app_name": "<short human readable app name>",
   "features": [
      { "name": "<canonical screen name>", "description": "<what user does on this screen>" }
-  ]
+  ],
+  "theme": "<optional_theme_name_or_null>"
 }
 
 RULES:
@@ -44,6 +46,13 @@ RULES:
 - NO technical terms (no 'component', 'module', 'route', 'HTML', 'TS', 'CSS', etc.).
 - DO NOT include file paths or file types.
 - DO NOT include Angular concepts.
+
+THEME SELECTION RULES:
+- You are ONLY allowed to choose a theme name from the provided "themes" list.
+- You are NOT allowed to create new themes.
+- If auto_theme_enabled=false → ALWAYS output "theme": null.
+- If auto_theme_enabled=true → Pick one theme.name that matches the project description.
+- Output ONLY the theme name. Do NOT output styling details.
 
 Your output MUST follow the structure above exactly.
 """
@@ -75,13 +84,31 @@ Your output MUST follow the structure above exactly.
 
     def _call_llm(self, spec: str) -> Dict[str, Any]:
         """Calls LLM to get app name + features."""
+
+        # Build theme metadata for the planner; i will make it in a separate funciton later.
+        theme_list = [ # so this will grap the themes' names form the folder themes.
+            { "name": key, "description": THEMES[key]["description"] }
+            for key in THEMES.keys()
+        ]
+
+        planning_request = {
+            "spec": spec,
+            "themes": theme_list,
+            "auto_theme_enabled": False
+        }
+        # planning_request = {
+        #     "spec": spec,
+        #     "themes": theme_list,
+        #     "auto_theme_enabled": current_state.auto_theme_enabled
+        # }
+
         response = self.client.models.generate_content(
             model="gemini-2.5-flash",
             config=types.GenerateContentConfig(
                 system_instruction=self.SYSTEM_INSTRUCTION,
                 response_mime_type="application/json",
             ),
-            contents=spec,
+            contents=str(planning_request),
         )
 
         text = response.text or ""
@@ -132,6 +159,29 @@ Your output MUST follow the structure above exactly.
             "file_name": "app.routes.ts",
             "default_redirect": default_redirect
         }
+
+        # ---------- THEME EXTRACTION ----------
+        # Planner may output something like: "dark" or null
+        theme_from_planner = raw.get("theme")
+        if isinstance(theme_from_planner, str):
+            theme_from_planner = theme_from_planner.strip() or None
+        else:
+            theme_from_planner = None
+
+
+        # ---------- THEME RESOLUTION ----------
+        if current_state.user_selected_theme:
+            theme = current_state.user_selected_theme
+
+        elif current_state.auto_theme_enabled and theme_from_planner:
+            theme = theme_from_planner  # planner chooses
+
+        else:
+            theme = "nebula_dark"  # forced default
+
+        # Safety fallback
+        if theme not in THEMES.keys():
+            theme = "nebula_dark"
 
         # ---------- Build Ordered File List ----------
         ordered_files: List[Dict[str, Any]] = []
@@ -184,8 +234,13 @@ Your output MUST follow the structure above exactly.
             "app_name": app_name,
             "features": normalized_features,
             "routing": routing,
-            "files": ordered_files
+            "files": ordered_files,
+            "theme": theme
         }
+    
+
+    
+
 
 
     # ---------- Naming Helpers ----------
