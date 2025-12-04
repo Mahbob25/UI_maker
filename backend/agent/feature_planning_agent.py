@@ -24,13 +24,13 @@ Your task:
 - Identify ONLY user-visible pages/screens that the user interacts with.
 - Ignore backend logic, APIs, state management, or background processes.
 
-Output Purpose:
-We are planning UI screens. We are NOT generating Angular code.
+You are NOT generating code. Only planning screens.
 
 Output REQUIRED Format (STRICT):
-- You MUST output ONLY valid JSON.
-- Do NOT include explanations or markdown.
-- The JSON MUST be:
+- Output MUST be ONLY valid JSON.
+- NO explanations or markdown.
+- JSON MUST be:
+
 {
   "app_name": "<short human readable app name>",
   "features": [
@@ -38,11 +38,16 @@ Output REQUIRED Format (STRICT):
   ]
 }
 
-Naming Rules:
+RULES:
 - Screen names MUST be short (max 3 words).
-- Keep naming consistent (e.g., use “Resume Editor” instead of multiple synonyms).
-- Do NOT mention technical concepts like modules, components, services, routes, or Angular.
+- One entry per UI screen.
+- NO technical terms (no 'component', 'module', 'route', 'HTML', 'TS', 'CSS', etc.).
+- DO NOT include file paths or file types.
+- DO NOT include Angular concepts.
+
+Your output MUST follow the structure above exactly.
 """
+
 
     def __init__(self) -> None:
         self.client = LLMClient.get()
@@ -86,13 +91,14 @@ Naming Rules:
             return {}
 
     def _normalize_plan(self, raw: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert raw output into canonical Angular metadata."""
+        """Convert raw output into canonical Angular metadata + ordered file planning."""
         app_name = str(raw.get("app_name", "Generated App")).strip()
         raw_features: List[Dict[str, Any]] = raw.get("features", [])
 
         normalized_features = []
         seen = set()
 
+        # ---------- Normalize Screen Features ----------
         for feat in raw_features:
             name = str(feat.get("name", "")).strip()
             desc = str(feat.get("description", "")).strip()
@@ -104,23 +110,22 @@ Naming Rules:
             class_name = self._to_pascal_case(name) + "PageComponent"
             selector = f"app-{kebab}"
             file_name = f"{kebab}.page.ts"
-            route = f"/{kebab}"  # stored with slash, but routing file will remove slash
+            route = f"/{kebab}"
 
             normalized_features.append({
                 "canonical_name": name,
                 "description": desc,
                 "selector": selector,
-                "route": route,                # stored normalized
+                "route": route,
                 "file_name": file_name,
                 "class_name": class_name,
             })
 
             seen.add(name)
 
-        # ----------- Routing Metadata -----------
+        # ---------- Routing Metadata ----------
         default_redirect = ""
         if normalized_features:
-            # remove slash for Angular redirect
             default_redirect = normalized_features[0]["route"].lstrip("/")
 
         routing = {
@@ -128,11 +133,60 @@ Naming Rules:
             "default_redirect": default_redirect
         }
 
+        # ---------- Build Ordered File List ----------
+        ordered_files: List[Dict[str, Any]] = []
+
+        # For each feature → HTML → TS → CSS
+        for feat in normalized_features:
+            kebab = self._to_kebab_case(feat["canonical_name"])
+
+            # HTML
+            ordered_files.append({
+                "type": "html",
+                "path": f"src/app/{kebab}/{kebab}.page.html",
+                "feature": feat["canonical_name"]
+            })
+
+            # CSS
+            ordered_files.append({
+                "type": "css",
+                "path": f"src/app/{kebab}/{kebab}.page.css",
+                "feature": feat["canonical_name"]
+            })
+
+             # TS
+            ordered_files.append({
+                "type": "ts",
+                "path": f"src/app/{kebab}/{kebab}.page.ts",
+                "feature": feat["canonical_name"]
+            })
+
+        # ---------- Add Routing + App Component Files (Always Last) ----------
+        ordered_files.append({
+            "type": "routing",
+            "path": "src/app/app.routes.ts"
+        })
+        ordered_files.append({
+            "type": "app_html",
+            "path": "src/app/app.component.html"
+        })
+        ordered_files.append({
+            "type": "app_ts",
+            "path": "src/app/app.component.ts"
+        })
+        ordered_files.append({
+            "type": "app_css",
+            "path": "src/app/app.component.css"
+        })
+
+        # ---------- Final Plan ----------
         return {
             "app_name": app_name,
             "features": normalized_features,
-            "routing": routing
+            "routing": routing,
+            "files": ordered_files
         }
+
 
     # ---------- Naming Helpers ----------
 

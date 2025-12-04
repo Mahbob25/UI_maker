@@ -70,5 +70,9 @@ class AgentState(BaseModel):
 
     page_to_be_modified: str | None = None 
 
+    user_selected_theme: str | None = None   # e.g. "dark"
+
+    auto_theme_enabled: bool = True    # if False, planner must not choose
+
 
 

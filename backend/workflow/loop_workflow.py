@@ -77,52 +77,64 @@ class LoopWorkflow:
 
     def _collect_files(self):
         plan = current_state.feature_plan
-        is_router = plan.get("router", True)
-        
-        files = set()
-        
-        # ALWAYS generate the root shell
-        files.add("src/app/app.component.ts")
-        files.add("src/app/app.component.html")
-        files.add("src/app/app.routes.ts")
 
-        if is_router:
-            # Multi-page: Add individual feature pages
-            for feature in plan.get("features", []):
-                if feature.get("file_name"):
-                    files.add(feature["file_name"])
-        
-        # If router=false, we DO NOT add feature files. 
-        # The content will be generated inside app.component.html
-        
-        return sorted(list(files))
+        # The new feature plan already contains an ordered list of all files.
+        planned_files = plan.get("files", [])
+
+        file_queue = []
+
+        for entry in planned_files:
+            path = entry.get("path")
+            if path:
+                file_queue.append(path)
+
+        return file_queue
+
 
 
     def _handle_file(self, file_path: str):
         print(f"\n ==> Generating: {file_path}")
 
-        raw = self.agent.generate(file_path)
+        # Up to 3 attempts: generate → repair → regenerate
+        for attempt in range(3):
+            raw = self.agent.generate(file_path)
 
-        if not FileValidator.is_valid(raw):
-            print(f"(X) INVALID: {file_path}")
+            # 1) First try direct validation
+            if FileValidator.is_valid(raw):
+                parsed = self._parse_and_store(file_path, raw)
+                self._extract_and_store_symbols(file_path, parsed["content"])
+                self._rebuild_system_context()
+                print(f"SUCCESS: {file_path}")
+                print("="*50)
+                return
+
+            print(f"(X) INVALID JSON for {file_path} on attempt {attempt+1}. Trying repair...")
+
+            # 2) Try FixAgent
             fixer = FixAgent()
-            raw = fixer.run(file_path, raw, JSONFixPromptBuilder)
+            repaired = fixer.run(file_path, raw, JSONFixPromptBuilder)
 
-            current_state.errors.append({
-                "file": file_path,
-                "type": "VALIDATION",
-                "message": "JSON failed schema validation",
-                "severity": "error"
-            })
-            return
+            # 3) Validate the repaired result
+            if repaired and FileValidator.is_valid(repaired):
+                parsed = self._parse_and_store(file_path, repaired)
+                self._extract_and_store_symbols(file_path, parsed["content"])
+                self._rebuild_system_context()
+                print(f"FIXED + SUCCESS: {file_path}")
+                print("="*50)
+                return
+
+            print("(X) Repair failed. Will retry full generation...")
+
+        # If we reach here → three failures
+        print(f"(X) FAILED PERMANENTLY: {file_path}")
+        current_state.errors.append({
+            "file": file_path,
+            "type": "GENERATION_FAILURE",
+            "message": "Unable to generate or repair JSON after 3 attempts",
+            "severity": "critical"
+        })
+
         
-        parsed = self._parse_and_store(file_path, raw)
-        self._extract_and_store_symbols(file_path, parsed["content"])
-        self._rebuild_system_context()
-
-        print(f"SUCCESS: {file_path}")
-        print("="*50)
-       
     def _parse_and_store(self, file_path: str, raw: str):
         parsed = FileValidator.parse_llm_json(raw)
         current_state.files_json[file_path] = parsed
