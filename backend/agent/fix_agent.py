@@ -22,7 +22,7 @@ class FixAgent:
         prompt = prompt_builder.build(file_path, raw_text)
 
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=current_state.user_selected_model,
             config=types.GenerateContentConfig(
                 response_mime_type="application/json",
             ),

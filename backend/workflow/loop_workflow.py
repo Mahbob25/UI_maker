@@ -22,15 +22,24 @@ class LoopWorkflow:
         self.agent = GenerationAgent()
         self.indexer = CodeIndexer()
 
-    def run(self, prompt: str = None, theme: str = None ):
+    def run(self, prompt: str = None, theme: str = None, model: str = "gemini-2.5-flash" ):
         # Reset state for new run
         current_state.reset()
         
-        if prompt:
-            current_state.raw_user_prompt = prompt
+        if not prompt:
+            raise ValueError("Prompt is required")
+
+        current_state.raw_user_prompt = prompt
         
-        if theme:
-            current_state.user_selected_theme = theme
+        if not theme:
+            raise ValueError("Theme is required")
+            
+        current_state.user_selected_theme = theme
+
+        if not model:
+            raise ValueError("Model is required")
+            
+        current_state.user_selected_model = model
         
         # 0) Clear previous index
         print("Clearing previous vector index...")
@@ -56,6 +65,7 @@ class LoopWorkflow:
         # 4) Generate each file based on planning
         for file_path in file_queue:
             self._handle_file(file_path)
+            break
 
         print("\n\n", current_state.symbols)
             
@@ -76,15 +86,20 @@ class LoopWorkflow:
         writer = FileWriter(GENERATED_DIR)  # your output directory
         writer.write_files(current_state.files_json)
 
-        print("==> Indexing files.....")
-        self._index_files_into_vectordb()
-        print("successfully indexed files.")
+        # this will be stoped for now as the testing is only for generation
+        # print("==> Indexing files.....")
+        # self._index_files_into_vectordb()
+        # print("successfully indexed files.")
 
         
-        print("="*50)
-        print("zipping folder.....")
-        zip_folder(GENERATED_DIR, GENERATED_DIR.parent) #zip and delete source
-        print("your zip is ready.")
+        # print("="*50)
+        # print("zipping folder.....")
+        # zip_folder(GENERATED_DIR, GENERATED_DIR.parent) #zip and delete source
+        # print("your zip is ready.")
+
+        return current_state.files_json
+
+        
 
         
 
@@ -179,38 +194,3 @@ class LoopWorkflow:
         self.indexer.index_project("generated_output/src/app")
 
         
-
-    # def _handle_file(self, file_path: str):
-    #     print(f"\n ==> Generating: {file_path}")
-
-    #     raw = self.agent.generate(file_path)   # generate the file.
-        
-        
-    #     if FileValidator.is_valid(raw):
-    #         parsed = FileValidator.parse_llm_json(raw)
-    #         current_state.files_json[file_path] = parsed
-
-            
-    #         # extract and store symbols
-    #         code = parsed["content"]
-    #         extracted = SymbolExtractor.extract_symbols(code)
-    #         for sym in extracted:
-    #             sym["path"] = file_path  # attach file path
-    #             current_state.symbols.append(sym)
-    #             print(current_state.symbols)
-
-    #         # build the system context again to add the files path that has been generated.
-    #         current_state.system_context = SystemContextBuilder().build()
-
-    #         print(f"SUCCESS: {file_path}")
-    #     else:
-    #         print(f"(X) INVALID: {file_path}")
-    #         current_state.errors.append({
-    #             "file": file_path,
-    #             "type": "VALIDATION",
-    #             "message": "JSON failed schema validation",
-    #             "severity": "error"
-    #         })
-
-
-

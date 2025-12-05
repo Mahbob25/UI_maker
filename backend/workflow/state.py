@@ -59,6 +59,8 @@ class AgentState(BaseModel):
 
     feature_plan: Optional[Dict[str, Any]] = None
 
+    user_selected_model: str | None = None
+
     # temp actions
     modify_prompt:  str | None = None 
 

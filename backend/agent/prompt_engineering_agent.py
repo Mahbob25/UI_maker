@@ -43,7 +43,7 @@ Your output must focus on WHAT the solution should achieve, not HOW to build it.
             raise ValueError("Cannot run Prompt Engineering: raw_user_prompt is empty")
 
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=current_state.user_selected_model,
             config=types.GenerateContentConfig(system_instruction=self.system_instruction),
             contents=prompt,
         )

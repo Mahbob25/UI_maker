@@ -35,12 +35,11 @@ def zip_folder(src: str | Path, dest: str | Path):
         for root, dirs, files in os.walk(src_path):
             for file in files:
                 full_path = Path(root) / file
-                # This creates nice paths inside the zip (without full absolute path)
-                arcname = full_path.relative_to(src_path.parent)
+
+                # FIX: remove the root folder from inside the ZIP
+                arcname = full_path.relative_to(src_path)
+
                 zipf.write(full_path, arcname)
     
-    print(f"Zip created (no copy made): {zip_path}")
-    print(f"Original folder untouched: {src_path}")
-
-
-
+    print(f"Zip created: {zip_path}")
+    return zip_path  # <- helpful for API

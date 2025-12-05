@@ -145,7 +145,7 @@ Component-specific rules:
 
         #  Call LLM 
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=current_state.user_selected_model,
             config=types.GenerateContentConfig(
                 system_instruction=system_context,
                 response_mime_type="application/json",
