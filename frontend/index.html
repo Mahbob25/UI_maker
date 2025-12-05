@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AgentCoder • Generate Your App</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -16,7 +17,11 @@
       --accent-hover: #8b5cf6;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -45,8 +50,15 @@
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     h1 {
@@ -128,25 +140,88 @@
     }
 
     @media (max-width: 480px) {
-      h1 { font-size: 2.4rem; }
-      .container { padding: 40px 24px; }
+      h1 {
+        font-size: 2.4rem;
+      }
+
+      .container {
+        padding: 40px 24px;
+      }
+    }
+
+    select {
+      width: 100%;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.3);
+    }
+
+    .theme-select option::before {
+      content: "⬤ ";
+    }
+
+    .theme-select option {
+      padding-left: 8px;
+      font-size: 1rem;
+    }
+
+    /* Style the select similar to your input */
+    .theme-select {
+      width: 100%;
+      padding: 18px 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 16px;
+      color: white;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      backdrop-filter: blur(10px);
+      cursor: pointer;
+    }
+
+    .theme-select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.3);
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>AgentCoder</h1>
     <p class="subtitle">Tell me what app you want.<br>I’ll build the full Angular project in seconds.</p>
 
     <form action="{{ url_for('generate') }}" method="POST">
+      <label for="theme">Choose a theme:</label>
+      <select id="theme" name="theme" class="theme-select">
+        <option value="default" data-color="#764ba2">⬤ Default</option>
+        <option value="ai_creative" data-color="linear-gradient(90deg, #FF0080, #7928CA)">⬤ AI Creative</option>
+        <option value="nebula_dark" data-color="#6366f1">⬤ Nebula Dark</option>
+        <option value="emerald_luxe" data-color="#10b981">⬤ Emerald Luxe</option>
+        <option value="rose_gold" data-color="#d946ef">⬤ Rose Gold</option>
+        <option value="arctic_frost" data-color="#1e40af">⬤ Arctic Frost</option>
+        <option value="midnight_amber" data-color="#f59e0b">⬤ Midnight Amber</option>
+        <option value="oceanic_deep" data-color="#29b6f6">⬤ Oceanic Deep</option>
+        <option value="sunrise" data-color="#fb7185">⬤ Sunrise</option>
+        <option value="cyber_neon" data-color="#00ffaa">⬤ Cyber Neon</option>
+        <option value="terminal_green" data-color="#00ff00">⬤ Terminal Green</option>
+      </select>
+
+
       <label for="prompt">Your idea:</label>
-      <input 
-        type="text" 
-        id="prompt" 
-        name="prompt" 
-        placeholder="e.g. Create a modern login page with password recovery and dark mode"
-        required 
-      />
+      <input type="text" id="prompt" name="prompt"
+        placeholder="e.g. Create a modern login page with password recovery and dark mode" required />
       <button type="submit">Generate My App</button>
     </form>
 
@@ -154,5 +229,19 @@
       Powered by AgentCoder • Full-stack Angular apps in seconds
     </footer>
   </div>
+  <script>
+    const themeSelect = document.getElementById("theme");
+
+    function updateOptionColors() {
+      for (let option of themeSelect.options) {
+        const color = option.getAttribute("data-color");
+        option.textContent = "⬤ " + option.textContent.replace(/^⬤ /, "");
+        option.style.color = color;
+      }
+    }
+
+    updateOptionColors();
+  </script>
 </body>
+
 </html>

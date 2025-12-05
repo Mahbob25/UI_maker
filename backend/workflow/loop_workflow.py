@@ -22,18 +22,25 @@ class LoopWorkflow:
         self.agent = GenerationAgent()
         self.indexer = CodeIndexer()
 
-    def run(self):
+    def run(self, prompt: str = None, theme: str = None ):
         # Reset state for new run
         current_state.reset()
+        
+        if prompt:
+            current_state.raw_user_prompt = prompt
+        
+        if theme:
+            current_state.user_selected_theme = theme
         
         # 0) Clear previous index
         print("Clearing previous vector index...")
         self.indexer.reset_index()
 
         # 1) Prompt engineering
-        PromptEngineeringAgent().run()
+        prompt = PromptEngineeringAgent().run()
         print(f"successufly Engineered the Prompt.....")
         print("="*50)
+        print(prompt)
 
         # 2) Feature planning 
         plan = FeaturePlanningAgent().run()
@@ -45,10 +52,13 @@ class LoopWorkflow:
         file_queue = self._collect_files()  
         print("\n Files to generate:\n", file_queue)
         print("="*50)
-
+        
         # 4) Generate each file based on planning
         for file_path in file_queue:
             self._handle_file(file_path)
+
+        print("\n\n", current_state.symbols)
+            
             
             
             

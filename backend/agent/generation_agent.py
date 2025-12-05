@@ -98,6 +98,51 @@ Component-specific rules:
 
         user_prompt = base_prompt + role_specific
 
+        # Special handling for styles.scss
+        if file_path == "src/styles.scss":
+            theme_name = current_state.feature_plan.get("theme", "default")
+            
+            if theme_name == "ai_creative":
+                user_prompt += """
+# STYLE GENERATION RULES
+- You are generating the global styles.scss file.
+- The user selected "AI Creative" mode.
+- **YOU HAVE COMPLETE CREATIVE FREEDOM.**
+- Design a unique, beautiful, and cohesive theme from scratch.
+- You are NOT bound by any preset colors or styles. Surprise the user with something stunning.
+- HOWEVER, to ensure the app functions correctly, you MUST define the following CSS variables (you choose the values):
+  - --color-primary, --color-primary-foreground
+  - --color-secondary, --color-secondary-foreground
+  - --color-accent, --color-accent-foreground
+  - --color-background, --color-surface, --color-surface-foreground
+  - --color-muted, --color-muted-foreground
+  - --color-border, --color-input, --color-ring
+  - --color-success, --color-warning, --color-error
+  - --radius-sm, --radius-md, --radius-lg, --radius-xl, --radius-2xl
+- You may add any other global styles, animations, or fonts you deem appropriate to enhance the theme.
+- Output MUST be valid JSON with "path" and "content".
+- Do not add any comments or explanations outside the JSON.
+- use hover, focus, active, disabled, and other pseudo-classes to add interactivity.
+
+"""
+            else:
+                # For preset themes, we inject the CSS directly to ensure consistency
+                from backend.themes.themes import generate_theme_css
+                preset_css = generate_theme_css(theme_name)
+                
+                user_prompt += f"""
+# STYLE GENERATION RULES
+- You are generating the global styles.scss file.
+- The user selected the "{theme_name}" theme.
+- You MUST use the following PRESET CSS variables exactly:
+
+{preset_css}
+
+- Wrap these variables in :root {{ ... }} if they are not already.
+- Add basic resets (html, body {{ height: 100%; margin: 0; ... }}).
+- Output MUST be valid JSON with "path" and "content".
+"""
+
         #  Call LLM 
         response = self.client.models.generate_content(
             model="gemini-2.5-flash",

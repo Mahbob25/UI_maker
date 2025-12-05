@@ -177,11 +177,11 @@ Your output MUST follow the structure above exactly.
             theme = theme_from_planner  # planner chooses
 
         else:
-            theme = "nebula_dark"  # forced default
+            theme = "default"  # forced default
 
         # Safety fallback
-        if theme not in THEMES.keys():
-            theme = "nebula_dark"
+        if theme != "ai_creative" and theme not in THEMES.keys():
+            theme = "default"
 
         # ---------- Build Ordered File List ----------
         ordered_files: List[Dict[str, Any]] = []
@@ -226,7 +226,11 @@ Your output MUST follow the structure above exactly.
         })
         ordered_files.append({
             "type": "app_css",
-            "path": "src/app/app.component.css"
+            "path": "src/app/app.component.scss"
+        })
+        ordered_files.append({
+            "type": "styles",
+            "path": "src/styles.scss"
         })
 
         # ---------- Final Plan ----------

@@ -43,15 +43,18 @@ async def root(request: Request):
 async def generate(
     request: Request,
     prompt: str = Form(...),
+    theme: str = Form(...),
     ):
     
     current_state.raw_user_prompt = str(prompt)
+    current_state.user_selected_theme = str(theme)
+    print(current_state.user_selected_theme)
     print("="*50)
     print(f"successufly received Stored Prompt: {current_state.raw_user_prompt}")
     print("="*50)
     delete_exist_files("generated_output\\src\\app")
     
-    LoopWorkflow().run()
+    LoopWorkflow().run(prompt=str(prompt), theme=str(theme))
     print(f"successufly Generated Files.....")
     print("\n Generated files (state.files_json):")
     print("\n" + "="*50)

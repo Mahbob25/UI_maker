@@ -70,8 +70,8 @@ class FileWriter:
         while rel.startswith("src/app/src/app/"):
             rel = rel.replace("src/app/src/app/", "src/app/", 1)
 
-        # If it doesn't start with src/app/, FORCE it
-        if not rel.startswith("src/app/"):
+        # If it doesn't start with src/, FORCE it to be in src/app/
+        if not rel.startswith("src/"):
             rel = "src/app/" + rel
 
         full_path = os.path.join(str(self.output_dir), rel)

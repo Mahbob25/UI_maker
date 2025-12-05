@@ -16,7 +16,7 @@ class SystemContextBuilder:
       theme_name = feature_plan_json.get("theme", "default")
       theme  = THEMES.get(theme_name, THEMES["default"])
       print("=" * 50)
-      print(theme_name, "\n", theme )
+      print(f"Using Theme: {theme_name}")
       print("=" * 50)
       api_url = "http://localhost:8000/save-page"
 
@@ -45,12 +45,41 @@ Your job:
   }}
 - Do NOT include backticks, comments, explanations, or markdown outside JSON.
 - NEVER insert raw newlines that break JSON formatting.
-  Use '\n' for newlines inside the "content" string.
+  Use '\\n' for newlines inside the "content" string.
 
 # ABSOLUTE NAMING RULES (DO NOT MODIFY)
 - All naming (selector, class name, file name, and route) MUST match the FEATURE PLAN exactly.
 - You MUST NOT invent alternative names (e.g., do not rename "editor" to "edit", "login" to "signin").
 - If the feature plan provides a route "/example", you MUST NOT remove or add words to it.
+
+# DESIGN SYSTEM RULES (MANDATORY)
+You MUST use the following semantic Tailwind classes. DO NOT use raw colors (e.g., bg-blue-500, text-gray-900).
+
+1. **Colors**:
+   - `bg-background`: Main page background.
+   - `bg-surface`: Card/Container background.
+   - `bg-primary`: Primary action buttons, active states.
+   - `text-primary-foreground`: Text on primary background.
+   - `bg-secondary`: Secondary buttons, muted backgrounds.
+   - `text-secondary-foreground`: Text on secondary background.
+   - `bg-muted`: Muted backgrounds (e.g., disabled inputs).
+   - `text-muted-foreground`: Muted text (subtitles, placeholders).
+   - `border-border`: Default border color.
+   - `border-input`: Input field borders.
+   - `text-surface-foreground`: Default body text.
+
+2. **Typography**:
+   - Use `font-sans` (Inter).
+   - Use `text-lg`, `text-xl`, `text-2xl` for headings.
+   - Use `font-semibold` or `font-bold` for emphasis.
+
+3. **Components**:
+   - **Buttons**: `px-4 py-2 rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50`
+     - Primary: `bg-primary text-primary-foreground hover:bg-primary/90`
+     - Secondary: `bg-secondary text-secondary-foreground hover:bg-secondary/80`
+     - Ghost: `hover:bg-accent hover:text-accent-foreground`
+   - **Inputs**: `flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50`
+   - **Cards**: `rounded-lg border border-border bg-surface text-surface-foreground shadow-sm`
 
 # FILE TYPE RULES (VERY IMPORTANT)
 
@@ -72,31 +101,8 @@ Your job:
 2) PAGE CSS FILES (*.page.css)
 - These files contain page-scoped CSS helpers.
 - Use them for:
-  - The editing shell and section-block styles.
   - Minor layout adjustments that Tailwind cannot express easily.
-- You MUST define the editing helpers:
-
-  .section-block {{
-      position: relative;
-      margin-bottom: 20px;
-      border: 1px dashed #888;
-      border-radius: 8px;
-      padding: 15px;
-      background: white;
-  }}
-
-  .drag-handle {{
-      cursor: grab;
-      position: absolute;
-      top: 8px;
-      right: 12px;
-      font-size: 22px;
-      opacity: .6;
-  }}
-
-  .section-block:hover .drag-handle {{
-      opacity: 1;
-  }}
+- Never generate empty CSS files.
 
 - Avoid large traditional CSS frameworks; layout and spacing should primarily use Tailwind classes in the HTML.
 
@@ -120,44 +126,6 @@ Your job:
   - Use styles: [] in the @Component decorator.
   - Use styleUrls or templateUrl pointing to any path other than the ones derived from the file path.
 
-- Each page component MUST implement the editable/save/load behavior:
-
-  - Have a <div id="page-root"> in its HTML template that contains all sections.
-  - In TypeScript:
-      - Implement ngOnInit() to load saved HTML for this page:
-          ngOnInit() {{
-              setTimeout(() => {{
-                  this.http.get("http://localhost:8000/load-page", {{
-                      params: {{ page_id: "<id>" }}
-                  }}).subscribe((r: any) => {{
-                      if (r && r.html) {{
-                          const el = document.getElementById('page-root');
-                          if (el) {{
-                              el.innerHTML = r.html;
-                          }}
-                      }}
-                  }});
-              }}, 50);
-          }}
-
-      - Implement ngAfterViewInit() to enable SortableJS on #page-root if the project uses it.
-        (Assume SortableJS is already available globally or imported elsewhere.)
-
-      - Implement submitChanges() to POST the current HTML back to the API:
-          submitChanges() {{
-              const root = document.getElementById('page-root');
-              if (!root) {{
-                  return;
-              }}
-              const html = root.innerHTML;
-              this.http.post("{api_url}", {{
-                  page_id: "<id>",
-                  html
-              }}).subscribe();
-          }}
-
-- The page_id placeholder "<id>" MUST be a stable identifier derived from the route or file name
-  (for example, "login", "dashboard", "profile-editor").
 
 # STANDALONE ANGULAR COMPONENT RULES (GENERAL)
 - All generated pages MUST be STANDALONE Angular components (no NgModule anywhere).
@@ -198,7 +166,7 @@ Your job:
 # TAILWIND RULES (MANDATORY — NO EXCEPTIONS)
 - ALL main layout and styling MUST be through Tailwind utility classes in the HTML templates.
 - CSS files are primarily for:
-  - The editing shell (.section-block, .drag-handle).
+  - Minor layout adjustments that Tailwind cannot express easily.
 ICON GENERATION RULES:
 1. Always use inline SVG icons — NEVER use <img> tags and NEVER use asset files.
 2. Prefer Lucide-style inline SVG icons when possible.
@@ -208,43 +176,6 @@ ICON GENERATION RULES:
      class="h-12 w-12 opacity-60 hover:opacity-100 transition"
 6. Do NOT reference external PNG/JPG images.
 7. Do NOT assume icons exist in the Angular assets folder.
-
-# EDITABLE UI RULES (APPLY TO PAGE HTML + TS)
-- In PAGE HTML (*.page.html):
-  - Every user-visible text node (h1–h6, p, span, button text, link text) SHOULD have:
-        contenteditable="true"
-        data-id="<section>_<role>_<index>"
-    (IDs must be stable and deterministic. No random strings.)
-  - All sections MUST be direct children of:
-        <div id="page-root"> … </div>
-  - Each section uses:
-        <section class="section-block" data-id="<section_name>">
-           <div class="drag-handle">⠿</div>
-           …content…
-        </section>
-  - Add the floating Save button OUTSIDE #page-root in the template:
-        <button id="submit-changes-btn"
-                (click)="submitChanges()"
-                class="fixed bottom-6 right-6 px-5 py-3 rounded-full shadow-lg bg-blue-600 text-white z-50">
-            Save Changes
-        </button>
-
-- In PAGE TS (*.page.ts):
-  - Implement ngOnInit, ngAfterViewInit, and submitChanges() as described above
-    to load/swap the content of #page-root and persist HTML via {api_url}.
-
-# SECTION CONTAINER RULES
-The <div id="page-root"> MUST NOT use:
-- flex
-- grid
-- justify-*
-- items-*
-- space-*, gap-*, grid-cols-*, flex-col, etc.
-
-It must be a regular block container.
-
-Only allow simple classes like:
-class="min-h-screen bg-gray-900 px-6 py-12"
 
 ANGULAR REQUIREMENTS (SUMMARY)
 - All components MUST be standalone.
@@ -264,16 +195,3 @@ NEVER random IDs.
 """
 
       return rules.strip()
-
-
-    
-
-
-
-
-# - Do NOT implement advanced routing logic (guards, services, state, etc.).
-# # CURRENT TARGET (IMPORTANT - DO NOT IGNORE)
-# You MUST generate ONLY this file:
-# >>> {current_state.target_file}
-
-
